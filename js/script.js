@@ -12,10 +12,10 @@ const CUOTAS_BASE = {
 };
 
 const INTERESES_PERIODS = [
-    { mes: 'MARZO', rate: 0.04 },
-    { mes: 'ABRIL', rate: 0.04 },
-    { mes: 'MAYO', rate: 0.0275 },
-    { mes: 'JUNIO', rate: 0.0275 },
+    { mes: 'MARZO', rate: 0 },
+    { mes: 'ABRIL', rate: 0 },
+    { mes: 'MAYO', rate: 0.04 },
+    { mes: 'JUNIO', rate: 0.04 },
     { mes: 'JULIO', rate: 0.0275 },
     { mes: 'AGOSTO', rate: 0.0275 },
     { mes: 'SEPTIEMBRE', rate: 0.0275 },
