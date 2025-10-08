@@ -65,7 +65,7 @@ function generarTablaCuotas() {
     tablaContainer.innerHTML = html;
 }
 
-// ===================== CÁLCULO DE INTERESES =====================
+// ===================== CÁLCULO DE INTERESES ACUMULADOS =====================
 function calcularInteresesAcumulados(mesCuota, tipoBeca, fechaPagoStr) {
     const valorBase = CUOTAS_BASE[mesCuota]?.[tipoBeca];
     if (valorBase === undefined) return { error: 'No existe la cuota seleccionada', total: 0, detalle: [] };
@@ -74,16 +74,28 @@ function calcularInteresesAcumulados(mesCuota, tipoBeca, fechaPagoStr) {
     const fechaPago = new Date(fechaPagoStr);
     if (isNaN(fechaPago)) return { error: 'Fecha de pago inválida', total: 0, detalle: [] };
 
-    const vencimientoOriginal = getUltimoDiaDelMes(mesCuota);
     let detalle = [];
     let sumaIntereses = 0;
+
+    // Índice inicial según la cuota
+    let inicioIdx = INTERESES_PERIODS.findIndex(p => p.mes === mesCuota);
+    if (inicioIdx === -1) return { error: 'No se encontró el mes', total: valorBase, detalle: [] };
+
+    // Último día del mes de la cuota
+    const vencimientoOriginal = getUltimoDiaDelMes(mesCuota, 2025);
+
+    // Fecha a partir de la cual aplica interés: primer día del segundo mes siguiente
+    const fechaInicioInteres = new Date(vencimientoOriginal.getFullYear(), vencimientoOriginal.getMonth() + 2, 1);
 
     // Recorremos los meses posteriores hasta la fecha de pago
     for (let i = INTERESES_PERIODS.findIndex(p => p.mes === mesCuota); i < INTERESES_PERIODS.length; i++) {
         const periodo = INTERESES_PERIODS[i];
         const venc = getUltimoDiaDelMes(periodo.mes);
-        const primerDiaSiguiente = new Date(venc.getFullYear(), venc.getMonth(), venc.getDate() + 1); // día siguiente al vencimiento
-        if (fechaPago >= primerDiaSiguiente) {
+
+        // Primer día del mes siguiente al vencimiento (INCLUSIVE)
+        const primerDiaInteres = new Date(venc.getFullYear(), venc.getMonth() + 1, 1);
+
+        if (fechaPago >= primerDiaInteres) {
             const montoInteres = valorBase * periodo.rate;
             sumaIntereses += montoInteres;
             detalle.push({
@@ -95,7 +107,7 @@ function calcularInteresesAcumulados(mesCuota, tipoBeca, fechaPagoStr) {
     }
 
     const total = Number((valorBase + sumaIntereses).toFixed(2));
-    return { error: null, total, detalle, valorBase: Number(valorBase) };
+    return { error: null, total, detalle, valorBase: Number(valorBase), fechaInicioInteres };
 }
 
 // ===================== MOSTRAR RESULTADO =====================
@@ -151,32 +163,43 @@ function resetearFormulario() {
 document.addEventListener('DOMContentLoaded', () => {
     generarTablaCuotas();
 
-    // Mostrar fecha de vencimiento automática
     const selectMes = document.getElementById('mesCuota');
     const campoVenc = document.getElementById('fechaVencimiento');
+    const campoInicioInteres = document.getElementById('fechaInicioInteres');
+
     selectMes.addEventListener('change', (e) => {
         const mes = e.target.value;
-        const venc = getUltimoDiaDelMes(mes);
+        if (!mes) {
+            campoVenc.value = '';
+            campoInicioInteres.value = '';
+            return;
+        }
+
+        const venc = getUltimoDiaDelMes(mes, 2025);
         const dd = String(venc.getDate()).padStart(2, '0');
         const mm = String(venc.getMonth() + 1).padStart(2, '0');
         const yyyy = venc.getFullYear();
         campoVenc.value = `${dd}/${mm}/${yyyy}`;
+
+        const primerDiaInteres = new Date(venc.getFullYear(), venc.getMonth() + 2, 1);
+        const dd2 = String(primerDiaInteres.getDate()).padStart(2, '0');
+        const mm2 = String(primerDiaInteres.getMonth() + 1).padStart(2, '0');
+        const yyyy2 = primerDiaInteres.getFullYear();
+        campoInicioInteres.value = `${dd2}/${mm2}/${yyyy2}`;
     });
 
-    // Form submit
     const form = document.getElementById('formCalculo');
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const mesCuota = document.getElementById('mesCuota').value;
         const tipoBeca = document.getElementById('tipoBeca').value;
         const fechaPagoStr = document.getElementById('fechaPago').value;
-        if (!mesCuota || !tipoBeca || !fechaPagoStr) return alert('Por favor complete todos los campos.');
+
+        if (!mesCuota || !tipoBeca || !fechaPagoStr) {
+            return alert('Por favor complete todos los campos.');
+        }
 
         const resultado = calcularInteresesAcumulados(mesCuota, tipoBeca, fechaPagoStr);
         mostrarResultadoEnPantalla(resultado, mesCuota, tipoBeca);
     });
 });
-
-
-
-
