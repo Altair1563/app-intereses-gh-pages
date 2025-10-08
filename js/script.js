@@ -23,6 +23,8 @@ const INTERESES_PERIODS = [
     { mes: 'NOVIEMBRE', rate: 0.0275 }
 ];
 
+const MESES_NOMBRES = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+
 // ===================== HELPERS =====================
 function formatoMoneda(num) {
     return Number(num).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -37,6 +39,25 @@ function getUltimoDiaDelMes(mesCuota, año = 2025) {
     return new Date(año, monthIndex + 1, 0); // último día del mes
 }
 
+// Parsear fecha yyyy-mm-dd del input type="date" sin problemas de timezone
+function parseFechaInput(dateStr) {
+    if (!dateStr) return new Date(NaN);
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return new Date(dateStr);
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    const d = parseInt(parts[2], 10);
+    return new Date(y, m - 1, d);
+}
+
+function formatoFechaDDMMYYYY(d) {
+    if (!d || isNaN(d)) return '';
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+}
+
 // ===================== TABLA DE CUOTAS =====================
 function generarTablaCuotas() {
     const tablaContainer = document.getElementById('tablaCuotas');
@@ -44,13 +65,10 @@ function generarTablaCuotas() {
         <thead><tr>
         <th>Mes</th><th>Vencimiento</th><th>Completo</th><th>Beca 50%</th><th>Beca 25%</th><th>Beca 75%</th><th>Beca 100%</th>
         </tr></thead><tbody>`;
-    for (const mes in CUOTAS_BASE) {
+    for (const mes of Object.keys(CUOTAS_BASE)) {
         const c = CUOTAS_BASE[mes];
         const venc = getUltimoDiaDelMes(mes);
-        const dd = String(venc.getDate()).padStart(2, '0');
-        const mm = String(venc.getMonth() + 1).padStart(2, '0');
-        const yyyy = venc.getFullYear();
-        const vencTxt = `${dd}/${mm}/${yyyy}`;
+        const vencTxt = formatoFechaDDMMYYYY(venc);
         html += `<tr>
             <td>${mes}</td>
             <td>${vencTxt}</td>
@@ -71,43 +89,42 @@ function calcularInteresesAcumulados(mesCuota, tipoBeca, fechaPagoStr) {
     if (valorBase === undefined) return { error: 'No existe la cuota seleccionada', total: 0, detalle: [] };
     if (valorBase === 0) return { error: null, total: 0, detalle: [] };
 
-    const fechaPago = new Date(fechaPagoStr);
+    const fechaPago = parseFechaInput(fechaPagoStr);
     if (isNaN(fechaPago)) return { error: 'Fecha de pago inválida', total: 0, detalle: [] };
 
-    let detalle = [];
-    let sumaIntereses = 0;
-
-    // Índice inicial según la cuota
-    let inicioIdx = INTERESES_PERIODS.findIndex(p => p.mes === mesCuota);
-    if (inicioIdx === -1) return { error: 'No se encontró el mes', total: valorBase, detalle: [] };
-
-    // Último día del mes de la cuota
     const vencimientoOriginal = getUltimoDiaDelMes(mesCuota, 2025);
 
     // Fecha a partir de la cual aplica interés: primer día del segundo mes siguiente
     const fechaInicioInteres = new Date(vencimientoOriginal.getFullYear(), vencimientoOriginal.getMonth() + 2, 1);
 
-    // Recorremos los meses posteriores hasta la fecha de pago
-    for (let i = INTERESES_PERIODS.findIndex(p => p.mes === mesCuota); i < INTERESES_PERIODS.length; i++) {
-        const periodo = INTERESES_PERIODS[i];
-        const venc = getUltimoDiaDelMes(periodo.mes);
+    // Si paga antes de la fecha de inicio de intereses => 0 intereses
+    if (fechaPago < fechaInicioInteres) {
+        return { error: null, total: Number(valorBase.toFixed(2)), detalle: [], valorBase: Number(valorBase), fechaInicioInteres };
+    }
 
-        // Primer día del mes siguiente al vencimiento (INCLUSIVE)
-        const primerDiaInteres = new Date(venc.getFullYear(), venc.getMonth() + 1, 1);
+    // Calcular cuántos meses (periodos) aplicar: contar meses completos desde fechaInicioInteres hasta el mes del pago (inclusivo)
+    const diffMonths = (fechaPago.getFullYear() - fechaInicioInteres.getFullYear()) * 12 + (fechaPago.getMonth() - fechaInicioInteres.getMonth());
+    const mesesAPagar = diffMonths + 1; // inclusive del mes actual de pago
+    let detalle = [];
+    let sumaIntereses = 0;
 
-        if (fechaPago >= primerDiaInteres) {
-            const montoInteres = valorBase * periodo.rate;
-            sumaIntereses += montoInteres;
-            detalle.push({
-                periodo: periodo.mes,
-                tasa: (periodo.rate * 100).toFixed(2) + '%',
-                monto: Number(montoInteres.toFixed(2))
-            });
-        }
+    for (let k = 0; k < mesesAPagar; k++) {
+        const periodoDate = new Date(fechaInicioInteres.getFullYear(), fechaInicioInteres.getMonth() + k, 1);
+        const mesName = MESES_NOMBRES[periodoDate.getMonth()]; // ej "MAYO"
+
+        const periodo = INTERESES_PERIODS.find(p => p.mes === mesName);
+        const rate = periodo ? periodo.rate : 0;
+        const montoInteres = Number((valorBase * rate).toFixed(2));
+        sumaIntereses += montoInteres;
+        detalle.push({
+            periodo: mesName,
+            tasa: (rate * 100).toFixed(2) + '%',
+            monto: montoInteres
+        });
     }
 
     const total = Number((valorBase + sumaIntereses).toFixed(2));
-    return { error: null, total, detalle, valorBase: Number(valorBase), fechaInicioInteres };
+    return { error: null, total, detalle, valorBase: Number(valorBase), fechaInicioInteres, mesesAPagar };
 }
 
 // ===================== MOSTRAR RESULTADO =====================
@@ -119,7 +136,7 @@ function mostrarResultadoEnPantalla(resultadoObj, mesCuota, tipoBeca) {
         return;
     }
 
-    const { total, detalle, valorBase } = resultadoObj;
+    const { total, detalle, valorBase, fechaInicioInteres, mesesAPagar } = resultadoObj;
 
     let html = `
         <div class="result-grid">
@@ -175,16 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const venc = getUltimoDiaDelMes(mes, 2025);
-        const dd = String(venc.getDate()).padStart(2, '0');
-        const mm = String(venc.getMonth() + 1).padStart(2, '0');
-        const yyyy = venc.getFullYear();
-        campoVenc.value = `${dd}/${mm}/${yyyy}`;
+        campoVenc.value = formatoFechaDDMMYYYY(venc);
 
         const primerDiaInteres = new Date(venc.getFullYear(), venc.getMonth() + 2, 1);
-        const dd2 = String(primerDiaInteres.getDate()).padStart(2, '0');
-        const mm2 = String(primerDiaInteres.getMonth() + 1).padStart(2, '0');
-        const yyyy2 = primerDiaInteres.getFullYear();
-        campoInicioInteres.value = `${dd2}/${mm2}/${yyyy2}`;
+        campoInicioInteres.value = formatoFechaDDMMYYYY(primerDiaInteres);
     });
 
     const form = document.getElementById('formCalculo');
@@ -202,3 +213,4 @@ document.addEventListener('DOMContentLoaded', () => {
         mostrarResultadoEnPantalla(resultado, mesCuota, tipoBeca);
     });
 });
+
