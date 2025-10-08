@@ -100,14 +100,14 @@ label {
 }
 
 .fechaVencimiento {
-    font-size: larger;
+    font-size: large;
     text-align: center;
     padding: 2px;
 }
 
 
 .fechaInicioInteres {
-    font-size: larger;
+    font-size: large;
     text-align: center;
     padding: 2px;
 }
