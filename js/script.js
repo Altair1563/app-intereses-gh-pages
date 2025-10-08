@@ -150,7 +150,6 @@ function mostrarResultadoEnPantalla(resultadoObj, mesCuota, tipoBeca) {
         html += `<div class="sin-interes"><p>✅ No se aplica interés. La cuota fue abonada dentro del plazo.</p></div>`;
     }
 
-    html += `<button class="btn-secundario" onclick="resetearFormulario()">Realizar otro cálculo</button>`;
     resultadoDiv.innerHTML = html;
 }
 

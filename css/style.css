@@ -9,7 +9,7 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
-    line-height: 1.6;
+    line-height: 1.3;
 }
 
 .container {
@@ -24,7 +24,6 @@ body {
 header {
     background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
     color: white;
-    padding: 30px;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -325,25 +324,7 @@ input[type="date"]:hover {
     font-weight: 500;
 }
 
-/* Botón secundario para "Realizar otro cálculo" */
-.btn-secundario {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-    border: none;
-    padding: 15px 20px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 100%;
-    margin-top: 20px;
-}
 
-.btn-secundario:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-}
 
 /* Estados de carga */
 .loading {
