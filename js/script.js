@@ -138,6 +138,9 @@ function mostrarResultadoEnPantalla(resultadoObj, mesCuota, tipoBeca) {
 
     const { total, detalle, valorBase, fechaInicioInteres, mesesAPagar } = resultadoObj;
 
+    // calcular suma total de intereses (por si no viene ya calculada)
+    const totalIntereses = detalle.reduce((acc, d) => acc + Number(d.monto || 0), 0);
+
     let html = `
         <div class="result-grid">
             <div class="result-card">
@@ -162,6 +165,11 @@ function mostrarResultadoEnPantalla(resultadoObj, mesCuota, tipoBeca) {
             <ul>
                 ${detalle.map(d => `<li><strong>${d.periodo}</strong>: ${d.tasa} → $${formatoMoneda(d.monto)}</li>`).join('')}
             </ul>
+
+            <!-- TOTAL DE INTERESES -->
+            <div class="total-intereses" style="text-align: center;margin-top:10px; font-weight:700;">
+                Total intereses: $${formatoMoneda(totalIntereses)}
+            </div>
         </div>`;
     } else {
         html += `<div class="sin-interes"><p>✅ No se aplica interés. La cuota fue abonada dentro del plazo.</p></div>`;
