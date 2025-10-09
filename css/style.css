@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1300px;
     margin: 0 auto;
     background: white;
     border-radius: 15px;
@@ -58,7 +58,7 @@ header p {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
-    padding: 30px;
+    padding: 0px 30px;
 }
 
 .form-section,
@@ -80,20 +80,20 @@ header p {
 .form-section h2,
 .info-section h3 {
     color: #2c3e50;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
+    margin-bottom: 5px;
+    padding-bottom: 0px;
     border-bottom: 2px solid #3498db;
     font-weight: 600;
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 0px;
     position: relative;
 }
 
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     font-weight: 600;
     color: #495057;
     font-size: 0.95em;
@@ -224,8 +224,8 @@ input[type="date"]:hover {
 }
 
 .result-section {
-    padding: 30px;
-    margin: 20px;
+    padding: 10px 30px;
+    margin: 0px 20px;
     background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
     border-radius: 10px;
     border-left: 5px solid #27ae60;
@@ -336,6 +336,77 @@ input[type="date"]:hover {
 .detalle-calculo li span {
     color: #495057;
     font-weight: 500;
+}
+
+/* Estilos mínimos para las solapas */
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+    justify-content: center;
+}
+
+.tab {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #d0d0d0;
+    cursor: pointer;
+    user-select: none;
+    background: #f7f7f7;
+}
+
+.tab.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #2b6ed6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.app-container {
+    gap: 20px;
+    align-items: flex-start;
+    margin: 0px 0px 30px 0px;
+}
+
+.form-section {
+    flex: 1 1 360px;
+    min-width: 300px;
+}
+
+.result-section {
+    flex: 1 1 360px;
+    min-width: 300px;
+}
+
+.table-container {
+    max-height: none;
+    /* Quita límite de alto */
+    overflow: visible;
+    /* Desactiva el scroll */
+}
+
+.tabla-cuotas {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-cuotas th,
+.tabla-cuotas td {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.detalle-calculo ul {
+    padding-left: 18px;
+    margin: 8px 0;
+}
+
+.total-intereses {
+    margin-top: 10px;
+    font-weight: 700;
+    text-align: center;
+    font-size: larger;
 }
 
 

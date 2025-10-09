@@ -14,10 +14,20 @@
             <h1>📚 Calculadora de Intereses Escolares</h1>
         </header>
 
+        <!-- TABS: seleccionar escuela -->
+        <div class="tabs" id="tabsEscuelas">
+            <!-- Se llenan desde JS; se deja contenido fallback por si JS falla -->
+            <div class="tab active" data-escuela="Inicial">Inicial / Primaria</div>
+            <div class="tab" data-escuela="SecundariaMB">Secundaria MB</div>
+            <div class="tab" data-escuela="Tecnica">Técnica</div>
+            <div class="tab" data-escuela="Superior">Superior</div>
+        </div>
+
         <div class="app-container">
             <!-- Formulario -->
             <div class="form-section">
-                <h2>Datos del Pago</h2>
+                <h2 id="tituloEscuela">Escuela: Inicial / Primaria</h2>
+                <h3>Datos del Pago</h3>
                 <form id="formCalculo">
                     <div class="form-group">
                         <label for="mesCuota">Mes de la Cuota:</label>
@@ -48,15 +58,14 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="fechaVencimiento">Vencimiento Original:</label>
+                        <label for="fechaVencimiento">Vencimiento Original:</label><br>
                         <input class="fechaVencimiento" type="text" id="fechaVencimiento" name="fechaVencimiento"
                             readonly placeholder=""><br><br>
 
-                        <label for="fechaInicioInteres">Desde esta fecha lleva interés:</label>
+                        <label for="fechaInicioInteres">Desde esta fecha lleva interés:</label><br>
                         <input class="fechaInicioInteres" type="text" id="fechaInicioInteres" name="fechaInicioInteres"
                             readonly placeholder="">
                     </div>
-
 
                     <div class="form-group">
                         <label for="fechaPago">Fecha Real de Pago:</label>
@@ -73,7 +82,7 @@
 
         <!-- Información de cuotas base -->
         <div class="info-section">
-            <h3>Información de Cuotas Base</h3>
+            <h3>Información de Cuotas Base (<span id="labelEscuelaTabla">Inicial / Primaria</span>)</h3>
             <div id="tablaCuotas"></div>
         </div>
     </div>
