@@ -184,7 +184,7 @@ function mostrarResultadoEnPantalla(res, mesCuota) {
     cardIntereses.className = 'result-card';
     const cantidadIntereses = res.detalle.length;
     cardIntereses.innerHTML = `<h4>Intereses Aplicados</h4>
-                               <p>${cantidadIntereses} ${cantidadIntereses > 1 ? 'meses' : 'mes'}</p>`;
+                               <b style="font-size:25px;">${cantidadIntereses} ${cantidadIntereses > 1 ? '' : 'mes'}</b>`;
     gridContainer.appendChild(cardIntereses);
 
     const cardTotalPagar = document.createElement('div');
