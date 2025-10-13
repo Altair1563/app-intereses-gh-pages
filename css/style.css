@@ -61,6 +61,40 @@ header p {
     padding: 0px 30px;
 }
 
+.flex-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.flex-row label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+#valorOriginalInput {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: white;
+    font-family: inherit;
+}
+
+/* Efectos de hover y focus iguales al select */
+#valorOriginalInput:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    transform: translateY(-1px);
+}
+
+#valorOriginalInput:hover {
+    border-color: #bdc3c7;
+}
+
 .form-section,
 .info-section {
     background: #f8f9fa;
@@ -231,6 +265,12 @@ input[type="date"]:hover {
     border-left: 5px solid #27ae60;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     animation: slideIn 0.5s ease-out;
+}
+
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
 }
 
 @keyframes slideIn {

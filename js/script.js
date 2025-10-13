@@ -1,5 +1,4 @@
 // ===================== DATOS POR ESCUELA =====================
-// Definí aquí las 4 escuelas. Cambia los valores por los reales de cada escuela.
 const CUOTAS_POR_ESCUELA = {
     'Inicial': {
         'MARZO': { 'COMPLETO': 69030, 'BECA 50%': 41385.55, 'BECA 25%': 55207.79, 'BECA 100%': 13741.11, 'BECA 75%': 27563.32 },
@@ -60,9 +59,8 @@ const INTERESES_PERIODS = [
 ];
 
 const MESES_NOMBRES = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
-
-// ESCUELA ACTIVA por defecto
 let escuelaActiva = 'Inicial';
+let valorTemporal = null;
 
 // ===================== HELPERS =====================
 function formatoMoneda(num) {
@@ -74,76 +72,52 @@ function getUltimoDiaDelMes(mesCuota, año = 2025) {
         'ENERO': 0, 'FEBRERO': 1, 'MARZO': 2, 'ABRIL': 3, 'MAYO': 4, 'JUNIO': 5,
         'JULIO': 6, 'AGOSTO': 7, 'SEPTIEMBRE': 8, 'OCTUBRE': 9, 'NOVIEMBRE': 10, 'DICIEMBRE': 11
     };
-    const monthIndex = mesesMap[mesCuota];
-    return new Date(año, monthIndex + 1, 0); // último día del mes
+    return new Date(año, mesesMap[mesCuota] + 1, 0);
 }
 
 function parseFechaInput(dateStr) {
     if (!dateStr) return new Date(NaN);
-    const parts = dateStr.split('-');
-    if (parts.length !== 3) return new Date(dateStr);
-    const y = parseInt(parts[0], 10);
-    const m = parseInt(parts[1], 10);
-    const d = parseInt(parts[2], 10);
+    const [y, m, d] = dateStr.split('-').map(Number);
     return new Date(y, m - 1, d);
 }
 
 function formatoFechaDDMMYYYY(d) {
     if (!d || isNaN(d)) return '';
-    const dd = String(d.getDate()).padStart(2, '0');
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const yyyy = d.getFullYear();
-    return `${dd}/${mm}/${yyyy}`;
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 }
 
-// ===================== TAB Y SELECCIÓN DE ESCUELA =====================
+// ===================== TABS =====================
 function inicializarTabs() {
-    const tabs = document.querySelectorAll('#tabsEscuelas .tab');
-    tabs.forEach(tab => {
+    document.querySelectorAll('#tabsEscuelas .tab').forEach(tab => {
         tab.addEventListener('click', () => {
-            const esc = tab.dataset.escuela;
-            setEscuelaActiva(esc);
-            // update visual active
-            tabs.forEach(t => t.classList.remove('active'));
+            setEscuelaActiva(tab.dataset.escuela);
+            document.querySelectorAll('#tabsEscuelas .tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
         });
     });
 }
 
 function setEscuelaActiva(escuelaId) {
-    if (!CUOTAS_POR_ESCUELA[escuelaId]) {
-        console.warn('Escuela no encontrada:', escuelaId);
-        return;
-    }
+    if (!CUOTAS_POR_ESCUELA[escuelaId]) return;
     escuelaActiva = escuelaId;
-    // Actualizar títulos y tabla
-    const titulo = document.getElementById('tituloEscuela');
-    const labelTabla = document.getElementById('labelEscuelaTabla');
-    const displayName = escuelaId === 'Inicial' ? 'Inicial / Primaria' :
-        escuelaId === 'SecundariaMB' ? 'Secundaria MB' :
-            escuelaId === 'Tecnica' ? 'Técnica' : 'Superior';
-    titulo.textContent = `Escuela: ${displayName}`;
-    labelTabla.textContent = displayName;
+    document.getElementById('tituloEscuela').textContent = `Escuela: ${escuelaId}`;
+    document.getElementById('labelEscuelaTabla').textContent = escuelaId;
     generarTablaCuotas();
-    // limpiar resultado y form (opcional)
     resetearFormulario();
 }
 
-// ===================== TABLA DE CUOTAS (usa escuelaActiva) =====================
+// ===================== TABLA =====================
 function generarTablaCuotas() {
     const tablaContainer = document.getElementById('tablaCuotas');
     const CUOTAS_BASE = CUOTAS_POR_ESCUELA[escuelaActiva];
-    let html = `<div class="table-container"><table class="tabla-cuotas">
-        <thead><tr>
+    let html = `<div class="table-container"><table class="tabla-cuotas"><thead><tr>
         <th>Mes</th><th>Vencimiento</th><th>Completo</th><th>Beca 50%</th><th>Beca 25%</th><th>Beca 75%</th><th>Beca 100%</th>
-        </tr></thead><tbody>`;
-    for (const mes of Object.keys(CUOTAS_BASE)) {
+    </tr></thead><tbody>`;
+    for (const mes in CUOTAS_BASE) {
         const c = CUOTAS_BASE[mes];
-        const venc = getUltimoDiaDelMes(mes);
-        const vencTxt = formatoFechaDDMMYYYY(venc);
         html += `<tr>
             <td>${mes}</td>
-            <td>${vencTxt}</td>
+            <td>${formatoFechaDDMMYYYY(getUltimoDiaDelMes(mes))}</td>
             <td>$${formatoMoneda(c['COMPLETO'])}</td>
             <td>$${formatoMoneda(c['BECA 50%'])}</td>
             <td>$${formatoMoneda(c['BECA 25%'])}</td>
@@ -155,137 +129,145 @@ function generarTablaCuotas() {
     tablaContainer.innerHTML = html;
 }
 
-// ===================== CÁLCULO DE INTERESES (usa escuelaActiva) =====================
+// ===================== CÁLCULO DE INTERESES =====================
 function calcularInteresesAcumulados(mesCuota, tipoBeca, fechaPagoStr) {
-    const CUOTAS_BASE = CUOTAS_POR_ESCUELA[escuelaActiva];
-    const valorBase = CUOTAS_BASE?.[mesCuota]?.[tipoBeca];
-    if (valorBase === undefined) return { error: 'No existe la cuota seleccionada para esta escuela', total: 0, detalle: [] };
-    if (valorBase === 0) return { error: null, total: 0, detalle: [] };
+    const base = CUOTAS_POR_ESCUELA[escuelaActiva]?.[mesCuota]?.[tipoBeca] || 0;
+    const valorBase = valorTemporal !== null ? valorTemporal : base;
+    if (!valorBase) return { error: 'No existe la cuota seleccionada.', total: 0, detalle: [] };
 
     const fechaPago = parseFechaInput(fechaPagoStr);
-    if (isNaN(fechaPago)) return { error: 'Fecha de pago inválida', total: 0, detalle: [] };
-
     const vencimientoOriginal = getUltimoDiaDelMes(mesCuota, 2025);
     const fechaInicioInteres = new Date(vencimientoOriginal.getFullYear(), vencimientoOriginal.getMonth() + 2, 1);
 
-    if (fechaPago < fechaInicioInteres) {
-        return { error: null, total: Number(valorBase.toFixed(2)), detalle: [], valorBase: Number(valorBase), fechaInicioInteres };
-    }
+    if (fechaPago < fechaInicioInteres) return { total: valorBase, detalle: [], valorBase, fechaVenc: vencimientoOriginal, fechaInicioInteres };
 
     const diffMonths = (fechaPago.getFullYear() - fechaInicioInteres.getFullYear()) * 12 + (fechaPago.getMonth() - fechaInicioInteres.getMonth());
     const mesesAPagar = diffMonths + 1;
-    let detalle = [];
-    let sumaIntereses = 0;
 
+    let detalle = [], sumaIntereses = 0;
     for (let k = 0; k < mesesAPagar; k++) {
-        const periodoDate = new Date(fechaInicioInteres.getFullYear(), fechaInicioInteres.getMonth() + k, 1);
-        const mesName = MESES_NOMBRES[periodoDate.getMonth()];
-
+        const mesName = MESES_NOMBRES[(fechaInicioInteres.getMonth() + k) % 12];
         const periodo = INTERESES_PERIODS.find(p => p.mes === mesName);
         const rate = periodo ? periodo.rate : 0;
-        const montoInteres = Number((valorBase * rate).toFixed(2));
-        sumaIntereses += montoInteres;
-        detalle.push({
-            periodo: mesName,
-            tasa: (rate * 100).toFixed(2) + '%',
-            monto: montoInteres
-        });
+        const monto = +(valorBase * rate).toFixed(2);
+        sumaIntereses += monto;
+        detalle.push({ periodo: mesName, tasa: (rate * 100).toFixed(2) + '%', monto });
     }
 
-    const total = Number((valorBase + sumaIntereses).toFixed(2));
-    return { error: null, total, detalle, valorBase: Number(valorBase), fechaInicioInteres, mesesAPagar };
+    return { total: +(valorBase + sumaIntereses).toFixed(2), detalle, valorBase, fechaVenc: vencimientoOriginal, fechaInicioInteres };
 }
 
-// ===================== MOSTRAR RESULTADO (incluye TOTAL intereses) =====================
-function mostrarResultadoEnPantalla(resultadoObj, mesCuota, tipoBeca) {
-    const resultadoDiv = document.getElementById('resultado');
-    resultadoDiv.style.display = 'block';
-    if (resultadoObj.error) {
-        resultadoDiv.innerHTML = `<div class="sin-interes"><p style="color:#7a1221">${resultadoObj.error}</p></div>`;
+// ===================== MOSTRAR RESULTADO =====================
+function mostrarResultadoEnPantalla(res, mesCuota) {
+    const div = document.getElementById('resultado');
+    div.style.display = 'block';
+    div.innerHTML = '';
+
+    if (res.error) {
+        div.innerHTML = `<p style="color:red">${res.error}</p>`;
         return;
     }
 
-    const { total, detalle, valorBase, fechaInicioInteres } = resultadoObj;
-    const totalIntereses = detalle.reduce((acc, d) => acc + Number(d.monto || 0), 0);
+    const totalIntereses = res.detalle.reduce((a, b) => a + b.monto, 0);
 
-    let html = `
-        <div class="result-grid">
-            <div class="result-card">
-                <h4>Valor Original (${mesCuota})</h4>
-                <div class="valor">$${formatoMoneda(valorBase)}</div>
-            </div>
-            <div class="result-card">
-                <h4>Intereses Aplicados</h4>
-                <div class="valor">${detalle.length}</div>
-            </div>
-            <div class="result-card total">
-                <h4>Total a Pagar</h4>
-                <div class="valor">$${formatoMoneda(total)}</div>
-            </div>
-        </div>
-    `;
+    const gridContainer = document.createElement('div');
+    gridContainer.className = 'result-grid';
+    div.appendChild(gridContainer);
 
-    if (detalle.length > 0) {
-        html += `
-        <div class="detalle-calculo">
-            <h4>Detalle de Intereses</h4>
-            <ul>
-                ${detalle.map(d => `<li><strong>${d.periodo}</strong>: ${d.tasa} → $${formatoMoneda(d.monto)}</li>`).join('')}
-            </ul>
+    const cardValor = document.createElement('div');
+    cardValor.className = 'result-card';
+    cardValor.innerHTML = `<h4>Valor Original (${mesCuota})</h4>
+                           <p class="valor">$${formatoMoneda(res.valorBase)}</p>`;
+    gridContainer.appendChild(cardValor);
 
-            <!-- TOTAL DE INTERESES -->
-            <div class="total-intereses">
-                Total intereses: $${formatoMoneda(totalIntereses)}
-            </div>
-        </div>`;
+    const cardIntereses = document.createElement('div');
+    cardIntereses.className = 'result-card';
+    const cantidadIntereses = res.detalle.length;
+    cardIntereses.innerHTML = `<h4>Intereses Aplicados</h4>
+                               <p>${cantidadIntereses} ${cantidadIntereses > 1 ? 'meses' : 'mes'}</p>`;
+    gridContainer.appendChild(cardIntereses);
+
+    const cardTotalPagar = document.createElement('div');
+    cardTotalPagar.className = 'result-card total';
+    cardTotalPagar.innerHTML = `<h4>Total a Pagar</h4>
+                                <p class="valor">$${formatoMoneda(res.total)}</p>`;
+    gridContainer.appendChild(cardTotalPagar);
+
+    if (res.detalle.length) {
+        const cardDetalle = document.createElement('div');
+        cardDetalle.className = 'detalle-calculo';
+        cardDetalle.innerHTML = `<h4>Detalle de Intereses</h4>
+                                 <ul>${res.detalle.map(d => `<li>${d.periodo}: ${d.tasa} → $${formatoMoneda(d.monto)}</li>`).join('')}</ul>`;
+        div.appendChild(cardDetalle);
+
+        const cardTotalIntereses = document.createElement('div');
+        cardTotalIntereses.className = 'result-card total';
+        cardTotalIntereses.innerHTML = `<h4>Total Interés Acumulado</h4>
+                                        <p class="valor">$${formatoMoneda(totalIntereses)}</p>`;
+        div.appendChild(cardTotalIntereses);
     } else {
-        html += `<div class="sin-interes"><p>✅ No se aplica interés. La cuota fue abonada dentro del plazo.</p></div>`;
+        const cardSinInteres = document.createElement('div');
+        cardSinInteres.className = 'sin-interes';
+        cardSinInteres.innerHTML = `<p>✅ No se aplica interés.</p>`;
+        div.appendChild(cardSinInteres);
     }
-
-    resultadoDiv.innerHTML = html;
 }
 
+// ===================== FORMULARIO =====================
 function resetearFormulario() {
     document.getElementById('formCalculo').reset();
     document.getElementById('resultado').style.display = 'none';
+    valorTemporal = null;
+    document.getElementById('valorOriginalContainer').style.display = 'none';
 }
 
-// ===================== INICIALIZACIÓN =====================
 document.addEventListener('DOMContentLoaded', () => {
     inicializarTabs();
-    setEscuelaActiva(escuelaActiva); // genera tabla y setea UI por defecto
+    setEscuelaActiva(escuelaActiva);
 
     const selectMes = document.getElementById('mesCuota');
-    const campoVenc = document.getElementById('fechaVencimiento');
-    const campoInicioInteres = document.getElementById('fechaInicioInteres');
+    const selectBeca = document.getElementById('tipoBeca');
+    const inputPago = document.getElementById('fechaPago');
+    const inputValor = document.getElementById('valorOriginalInput');
 
-    selectMes.addEventListener('change', (e) => {
-        const mes = e.target.value;
+    // FUNCIÓN COMÚN para actualizar valor y fechas
+    function actualizarValorYFechas() {
+        const mes = selectMes.value;
+        const tipo = selectBeca.value || 'COMPLETO';
         if (!mes) {
-            campoVenc.value = '';
-            campoInicioInteres.value = '';
+            document.getElementById('valorOriginalContainer').style.display = 'none';
+            document.getElementById('fechaVencimiento').value = '';
+            document.getElementById('fechaInicioInteres').value = '';
             return;
         }
 
-        const venc = getUltimoDiaDelMes(mes, 2025);
-        campoVenc.value = formatoFechaDDMMYYYY(venc);
+        const valor = CUOTAS_POR_ESCUELA[escuelaActiva]?.[mes]?.[tipo] || 0;
+        inputValor.value = valor;
+        valorTemporal = valor;
 
-        const primerDiaInteres = new Date(venc.getFullYear(), venc.getMonth() + 2, 1);
-        campoInicioInteres.value = formatoFechaDDMMYYYY(primerDiaInteres);
+        const venc = getUltimoDiaDelMes(mes);
+        document.getElementById('fechaVencimiento').value = formatoFechaDDMMYYYY(venc);
+        const inicioInteres = new Date(venc.getFullYear(), venc.getMonth() + 2, 1);
+        document.getElementById('fechaInicioInteres').value = formatoFechaDDMMYYYY(inicioInteres);
+
+        document.getElementById('valorOriginalContainer').style.display = 'block';
+    }
+
+    selectMes.addEventListener('change', actualizarValorYFechas);
+    selectBeca.addEventListener('change', actualizarValorYFechas);
+
+    inputValor.addEventListener('input', e => {
+        valorTemporal = parseFloat(e.target.value) || 0;
     });
 
-    const form = document.getElementById('formCalculo');
-    form.addEventListener('submit', (e) => {
+    document.getElementById('formCalculo').addEventListener('submit', e => {
         e.preventDefault();
-        const mesCuota = document.getElementById('mesCuota').value;
-        const tipoBeca = document.getElementById('tipoBeca').value;
-        const fechaPagoStr = document.getElementById('fechaPago').value;
+        const mes = selectMes.value;
+        const tipo = selectBeca.value;
+        const fecha = inputPago.value;
+        if (!mes || !tipo || !fecha) return alert('Complete todos los campos.');
 
-        if (!mesCuota || !tipoBeca || !fechaPagoStr) {
-            return alert('Por favor complete todos los campos.');
-        }
-
-        const resultado = calcularInteresesAcumulados(mesCuota, tipoBeca, fechaPagoStr);
-        mostrarResultadoEnPantalla(resultado, mesCuota, tipoBeca);
+        const res = calcularInteresesAcumulados(mes, tipo, fecha);
+        mostrarResultadoEnPantalla(res, mes);
     });
 });

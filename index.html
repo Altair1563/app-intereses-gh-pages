@@ -16,7 +16,6 @@
 
         <!-- TABS: seleccionar escuela -->
         <div class="tabs" id="tabsEscuelas">
-            <!-- Se llenan desde JS; se deja contenido fallback por si JS falla -->
             <div class="tab active" data-escuela="Inicial">Inicial / Primaria</div>
             <div class="tab" data-escuela="SecundariaMB">Secundaria MB</div>
             <div class="tab" data-escuela="Tecnica">Técnica</div>
@@ -28,21 +27,38 @@
             <div class="form-section">
                 <h2 id="tituloEscuela">Escuela: Inicial / Primaria</h2>
                 <h3>Datos del Pago</h3>
+
                 <form id="formCalculo">
-                    <div class="form-group">
-                        <label for="mesCuota">Mes de la Cuota:</label>
-                        <select id="mesCuota" name="mesCuota" required>
-                            <option value="">Seleccione el mes</option>
-                            <option value="MARZO">Marzo</option>
-                            <option value="ABRIL">Abril</option>
-                            <option value="MAYO">Mayo</option>
-                            <option value="JUNIO">Junio</option>
-                            <option value="JULIO">Julio</option>
-                            <option value="AGOSTO">Agosto</option>
-                            <option value="SEPTIEMBRE">Septiembre</option>
-                            <option value="OCTUBRE">Octubre</option>
-                            <option value="NOVIEMBRE">Noviembre</option>
-                        </select>
+                    <div class="form-group flex-row">
+                        <div style="flex:1; margin-right:10px;">
+                            <label for="mesCuota">Mes de la Cuota:</label>
+                            <select id="mesCuota" name="mesCuota" required>
+                                <option value="">Seleccione el mes</option>
+                                <option value="MARZO">Marzo</option>
+                                <option value="ABRIL">Abril</option>
+                                <option value="MAYO">Mayo</option>
+                                <option value="JUNIO">Junio</option>
+                                <option value="JULIO">Julio</option>
+                                <option value="AGOSTO">Agosto</option>
+                                <option value="SEPTIEMBRE">Septiembre</option>
+                                <option value="OCTUBRE">Octubre</option>
+                                <option value="NOVIEMBRE">Noviembre</option>
+                            </select>
+                        </div>
+
+                        <div id="valorOriginalContainer" style="flex:1; display:none;">
+                            <label for="valorOriginalInput"><b>Valor Original del Mes Seleccionado:</b></label>
+                            <input type="number" id="valorOriginalInput" step="0.01"
+                                placeholder="Ingrese valor original">
+                        </div>
+                    </div>
+
+                    <!-- Valor Original (editable y oculto hasta seleccionar mes) -->
+                    <div id="valorOriginalContainer" class="form-group" style="display:none;">
+                        <label for="valorOriginalInput"><b>Valor Original del Mes Seleccionado:</b></label>
+                        <input type="number" id="valorOriginalInput" step="0.01"
+                            style="padding:6px; border-radius:6px; border:1px solid #ccc;"
+                            placeholder="Ingrese valor original">
                     </div>
 
                     <div class="form-group">
@@ -55,22 +71,22 @@
                             <option value="BECA 75%">Beca 75%</option>
                             <option value="BECA 100%">Beca 100%</option>
                         </select>
-                    </div>
+                    </div><br>
 
                     <div class="form-group">
-                        <label for="fechaVencimiento">Vencimiento Original:</label><br>
+                        <label for="fechaVencimiento">Vencimiento Original:</label>
                         <input class="fechaVencimiento" type="text" id="fechaVencimiento" name="fechaVencimiento"
                             readonly placeholder=""><br><br>
 
-                        <label for="fechaInicioInteres">Desde esta fecha lleva interés:</label><br>
+                        <label for="fechaInicioInteres">Desde esta fecha lleva interés:</label>
                         <input class="fechaInicioInteres" type="text" id="fechaInicioInteres" name="fechaInicioInteres"
                             readonly placeholder="">
-                    </div>
+                    </div><br>
 
                     <div class="form-group">
                         <label for="fechaPago">Fecha Real de Pago:</label>
                         <input type="date" id="fechaPago" name="fechaPago" required>
-                    </div>
+                    </div><br>
 
                     <button type="submit" class="btn-calcular">Calcular Interés</button>
                 </form>
