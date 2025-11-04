@@ -40,6 +40,7 @@
             padding: 2rem;
             display: none;
             animation: slideIn 0.6s ease;
+            border-left: 3px solid #007bff;
         }
 
         h2 {
@@ -87,7 +88,6 @@
             margin-top: 2rem;
         }
 
-        /* 🌟 Estilo tabla moderna */
         .tabla-cuotas {
             width: 100%;
             border-collapse: collapse;
@@ -103,7 +103,6 @@
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #dee2e6;
-            transition: background-color 0.2s ease;
         }
 
         .tabla-cuotas th {
@@ -112,7 +111,6 @@
             font-weight: 600;
             text-transform: uppercase;
             font-size: 0.85em;
-            letter-spacing: 0.5px;
         }
 
         .tabla-cuotas tr:nth-child(even) {
@@ -121,7 +119,6 @@
 
         .tabla-cuotas tr:hover {
             background-color: #e9ecef;
-            transform: scale(1.01);
         }
 
         .tabla-cuotas td {
@@ -132,6 +129,11 @@
         .tabla-cuotas td:first-child {
             font-weight: 600;
             color: #2c3e50;
+        }
+
+        .linea {
+            border-bottom: 1px dashed #999;
+            margin: 12px 0;
         }
 
         @keyframes slideIn {
@@ -203,6 +205,7 @@
             }
         };
 
+        // Reglas de aplicación de intereses
         const REGLA_INTERESES = {
             'MAYO': 'MARZO',
             'JUNIO': 'ABRIL',
@@ -257,13 +260,16 @@
 
             const mesLimite = REGLA_INTERESES[mesActual];
             if (!mesLimite) {
-                resultado.innerHTML = '<p>Seleccioná un mes válido (a partir de MAYO).</p>';
+                resultado.innerHTML = '<p>Seleccioná un mes válido (desde MAYO en adelante).</p>';
                 resultado.style.display = 'block';
                 return;
             }
 
             const idxLimite = MESES.indexOf(mesLimite);
-            let salida = `<h3>Resultados para ${escuela}</h3><hr>`;
+            const idxActual = MESES.indexOf(mesActual);
+            const interesActual = INTERESES[idxActual];
+
+            let salida = `<h3>💡 Resultados de Intereses (${mesActual})</h3><hr>`;
             let totalInteres = 0;
 
             for (let i = 0; i <= idxLimite; i++) {
@@ -271,15 +277,16 @@
                 const cuota = CUOTAS_POR_ESCUELA[escuela]?.[mes]?.[beca];
                 if (!cuota) continue;
 
-                const interes = INTERESES[i];
-                const montoInteres = cuota * interes;
+                const montoInteres = cuota * interesActual;
                 totalInteres += montoInteres;
 
-                salida += `<p><b>${mes}</b>: Interés ${(interes * 100).toFixed(2)}% → $${montoInteres.toFixed(2)}</p>`;
+                salida += `
+                    <div><b>${mes}:</b> Interés ${(interesActual * 100).toFixed(2)}% → $${montoInteres.toFixed(2)}</div>
+                    <div class="linea"></div>
+                `;
             }
 
-            salida += `<hr><h4>Total intereses aplicados: $${totalInteres.toFixed(2)}</h4>`;
-
+            salida += `<h4>Total intereses aplicados: $${totalInteres.toFixed(2)}</h4>`;
             resultado.innerHTML = salida;
             resultado.style.display = 'block';
         }
