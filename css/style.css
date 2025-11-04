@@ -211,6 +211,47 @@ input[type="date"]:hover {
     transform: translateY(0);
 }
 
+.oculto {
+    display: none;
+}
+
+.tabs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-aplicador {
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-aplicador.verde {
+    background: #28a745;
+    color: white;
+}
+
+.btn-aplicador.verde:hover {
+    background: #23913e;
+    transform: scale(1.05);
+}
+
+.btn-aplicador.azul {
+    background: #007bff;
+    color: white;
+}
+
+.btn-aplicador.azul:hover {
+    background: #0069d9;
+    transform: scale(1.05);
+}
+
+
 .tabla-cuotas {
     width: 100%;
     border-collapse: collapse;
@@ -382,7 +423,7 @@ input[type="date"]:hover {
 .tabs {
     display: flex;
     gap: 8px;
-    margin: 16px 0;
+    margin: 6px 0;
     justify-content: center;
 }
 

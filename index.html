@@ -14,12 +14,24 @@
             <h1>📚 Calculadora de Intereses Escolares</h1>
         </header>
 
-        <!-- TABS: seleccionar escuela -->
-        <div class="tabs" id="tabsEscuelas">
-            <div class="tab active" data-escuela="Inicial">Inicial / Primaria</div>
-            <div class="tab" data-escuela="SecundariaMB">Secundaria MB</div>
-            <div class="tab" data-escuela="Tecnica">Técnica</div>
-            <div class="tab" data-escuela="Superior">Superior</div>
+        <!-- CONTENEDOR PRINCIPAL DE TABS -->
+        <div class="tabs-container">
+
+            <!-- SECCIÓN 1: Botones principales -->
+            <div class="tabs" id="tabsAcciones">
+                <button id="btnAplicarMensual" class="btn-aplicador verde">
+                    🧮 Aplicar Interés generales al sistema
+                </button>
+            </div>
+
+            <!-- SECCIÓN 2: Pestañas de escuelas (solo visibles si se elige “por cuota”) -->
+            <div id="seccionEscuelas" class="tabs oculto">
+                <div class="tab active" data-escuela="Inicial">Inicial / Primaria</div>
+                <div class="tab" data-escuela="SecundariaMB">Secundaria MB</div>
+                <div class="tab" data-escuela="Tecnica">Técnica</div>
+                <div class="tab" data-escuela="Superior">Superior</div>
+            </div>
+
         </div>
 
         <div class="app-container">
@@ -105,6 +117,76 @@
     </div>
 
     <script src="js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnAplicarMensual = document.getElementById('btnAplicarMensual');
+            const btnAplicarPorCuota = document.getElementById('btnAplicarPorCuota');
+            const seccionEscuelas = document.getElementById('seccionEscuelas');
+
+            // Asegurarnos de que esté oculto al inicio
+            if (seccionEscuelas && !seccionEscuelas.classList.contains('oculto')) {
+                seccionEscuelas.classList.add('oculto');
+            }
+
+            // Botón: abrir aplicador mensual (si querés abrir otra página)
+            if (btnAplicarMensual) {
+                btnAplicarMensual.addEventListener('click', () => {
+                    // si querés abrir en la misma app cambialo por la función correspondiente
+                    window.location.href = 'aplicador_intereses.html';
+                });
+            }
+
+            // Botón: mostrar/ocultar las tabs de escuelas
+            if (btnAplicarPorCuota && seccionEscuelas) {
+                btnAplicarPorCuota.addEventListener('click', () => {
+                    seccionEscuelas.classList.toggle('oculto');
+
+                    // Si se está mostrando, enfocamos la primer tab por accesibilidad
+                    if (!seccionEscuelas.classList.contains('oculto')) {
+                        const firstTab = seccionEscuelas.querySelector('.tab');
+                        if (firstTab) firstTab.focus();
+                    }
+                });
+            }
+
+            // Manejar clics en las tabs de escuela
+            const tabs = document.querySelectorAll('#seccionEscuelas .tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // quitar active a todas y poner en la seleccionada
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    const escuelaId = tab.dataset.escuela || tab.textContent.trim();
+                    // Actualizar títulos/labels de la UI
+                    const titulo = document.getElementById('tituloEscuela');
+                    const labelTabla = document.getElementById('labelEscuelaTabla');
+                    if (titulo) titulo.textContent = `Escuela: ${escuelaId}`;
+                    if (labelTabla) labelTabla.textContent = escuelaId;
+
+                    // Llamar a tu función existente para cambiar escuela si está definida
+                    if (typeof setEscuelaActiva === 'function') {
+                        setEscuelaActiva(escuelaId);
+                    } else if (typeof generarTablaCuotas === 'function') {
+                        // fallback: regenerar tabla si no existe setEscuelaActiva
+                        if (typeof window.escuelaActiva !== 'undefined') window.escuelaActiva = escuelaId;
+                        generarTablaCuotas();
+                    }
+                });
+
+                // Permitir selección por teclado (Enter / Space)
+                tab.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        tab.click();
+                    }
+                });
+
+                // Hacer las tabs focusables
+                tab.setAttribute('tabindex', '0');
+            });
+        });
+    </script>
 </body>
 
 </html>
