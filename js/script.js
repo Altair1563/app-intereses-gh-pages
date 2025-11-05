@@ -160,7 +160,7 @@ function calcularInteresesAcumulados(mesCuota, tipoBeca, fechaPagoStr) {
 // ===================== MOSTRAR RESULTADO =====================
 function mostrarResultadoEnPantalla(res, mesCuota) {
     const div = document.getElementById('resultado');
-    div.style.display = 'block';
+    div.classList.remove('is-hidden');
     div.innerHTML = '';
 
     if (res.error) {
@@ -183,8 +183,9 @@ function mostrarResultadoEnPantalla(res, mesCuota) {
     const cardIntereses = document.createElement('div');
     cardIntereses.className = 'result-card';
     const cantidadIntereses = res.detalle.length;
-    cardIntereses.innerHTML = `<h4>Intereses Aplicados</h4>
-                               <b style="font-size:25px;">${cantidadIntereses} ${cantidadIntereses > 1 ? '' : ''}</b>`;
+    cardIntereses.innerHTML = `<h4>Intereses aplicados</h4>
+                               <p class="valor">${cantidadIntereses}</p>
+                               <span class="result-note">${cantidadIntereses === 1 ? 'período' : 'períodos'}</span>`;
     gridContainer.appendChild(cardIntereses);
 
     const cardTotalPagar = document.createElement('div');
@@ -197,7 +198,7 @@ function mostrarResultadoEnPantalla(res, mesCuota) {
         const cardDetalle = document.createElement('div');
         cardDetalle.className = 'detalle-calculo';
         cardDetalle.innerHTML = `<h4>Detalle de Intereses</h4>
-                                 <ul>${res.detalle.map(d => `<li>${d.periodo}: ${d.tasa} → $${formatoMoneda(d.monto)}</li>`).join('')}</ul>`;
+                                 <ul>${res.detalle.map(d => `<li><span><strong>${d.periodo}</strong><small>${d.tasa}</small></span><span>$${formatoMoneda(d.monto)}</span></li>`).join('')}</ul>`;
         div.appendChild(cardDetalle);
 
         const cardTotalIntereses = document.createElement('div');
@@ -216,9 +217,16 @@ function mostrarResultadoEnPantalla(res, mesCuota) {
 // ===================== FORMULARIO =====================
 function resetearFormulario() {
     document.getElementById('formCalculo').reset();
-    document.getElementById('resultado').style.display = 'none';
+    const resultado = document.getElementById('resultado');
+    resultado.classList.add('is-hidden');
+    resultado.innerHTML = '';
     valorTemporal = null;
-    document.getElementById('valorOriginalContainer').style.display = 'none';
+    const valorWrapper = document.getElementById('valorOriginalWrapper');
+    if (valorWrapper) {
+        valorWrapper.classList.add('is-hidden');
+    }
+    document.getElementById('fechaVencimiento').value = '';
+    document.getElementById('fechaInicioInteres').value = '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -229,15 +237,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectBeca = document.getElementById('tipoBeca');
     const inputPago = document.getElementById('fechaPago');
     const inputValor = document.getElementById('valorOriginalInput');
+    const valorWrapper = document.getElementById('valorOriginalWrapper');
 
     // FUNCIÓN COMÚN para actualizar valor y fechas
     function actualizarValorYFechas() {
         const mes = selectMes.value;
         const tipo = selectBeca.value || 'COMPLETO';
         if (!mes) {
-            document.getElementById('valorOriginalContainer').style.display = 'none';
+            if (valorWrapper) {
+                valorWrapper.classList.add('is-hidden');
+            }
             document.getElementById('fechaVencimiento').value = '';
             document.getElementById('fechaInicioInteres').value = '';
+            inputValor.value = '';
             return;
         }
 
@@ -250,7 +262,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const inicioInteres = new Date(venc.getFullYear(), venc.getMonth() + 2, 1);
         document.getElementById('fechaInicioInteres').value = formatoFechaDDMMYYYY(inicioInteres);
 
-        document.getElementById('valorOriginalContainer').style.display = 'block';
+        if (valorWrapper) {
+            valorWrapper.classList.remove('is-hidden');
+        }
     }
 
     selectMes.addEventListener('change', actualizarValorYFechas);
