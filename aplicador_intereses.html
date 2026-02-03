@@ -277,52 +277,59 @@
             }
 
             let tabla = `<table class="tabla-cuotas"><thead><tr><th>Mes</th><th>COMPLETO</th><th>75%</th><th>50%</th><th>25%</th><th>100%</th></tr></thead><tbody>`;
-            for (const mes in datos) {
+            for (const mes of MESES) {
+                if (!datos[mes]) continue;
+
                 const c = datos[mes];
-                tabla += `<tr><td>${mes}</td><td>$${c["COMPLETO"]}</td><td>$${c["BECA 75%"]}</td><td>$${c["BECA 50%"]}</td><td>$${c["BECA 25%"]}</td><td>$${c["BECA 100%"]}</td></tr>`;
-            }
-            tabla += "</tbody></table>";
-            tablaDiv.innerHTML = tabla;
-        }
-
-        function calcularIntereses() {
-            const escuela = document.getElementById('escuela').value;
-            const beca = document.getElementById('beca').value;
-            const mesActual = document.getElementById('mesActual').value;
-            const resultado = document.getElementById('resultado');
-
-            const mesLimite = REGLA_INTERESES[mesActual];
-            if (!mesLimite) {
-                resultado.innerHTML = '<p>Seleccioná un mes válido (desde MAYO en adelante).</p>';
-                resultado.style.display = 'block';
-                return;
+                tabla += `<tr>
+        <td>${mes}</td>
+        <td>$${c["COMPLETO"]}</td>
+        <td>$${c["BECA 75%"]}</td>
+        <td>$${c["BECA 50%"]}</td>
+        <td>$${c["BECA 25%"]}</td>
+        <td>$${c["BECA 100%"]}</td>
+    </tr>`;
             }
 
-            const idxLimite = MESES.indexOf(mesLimite);
-            const idxActual = MESES.indexOf(mesActual);
-            const interesActual = INTERESES[idxActual];
 
-            let salida = `<h3>💡 Resultados de Intereses (${mesActual})</h3><hr>`;
-            let totalInteres = 0;
+            function calcularIntereses() {
+                const escuela = document.getElementById('escuela').value;
+                const beca = document.getElementById('beca').value;
+                const mesActual = document.getElementById('mesActual').value;
+                const resultado = document.getElementById('resultado');
 
-            for (let i = 0; i <= idxLimite; i++) {
-                const mes = MESES[i];
-                const cuota = CUOTAS_POR_ESCUELA[escuela]?.[mes]?.[beca];
-                if (!cuota) continue;
+                const mesLimite = REGLA_INTERESES[mesActual];
+                if (!mesLimite) {
+                    resultado.innerHTML = '<p>Seleccioná un mes válido (desde MAYO en adelante).</p>';
+                    resultado.style.display = 'block';
+                    return;
+                }
 
-                const montoInteres = cuota * interesActual;
-                totalInteres += montoInteres;
+                const idxLimite = MESES.indexOf(mesLimite);
+                const idxActual = MESES.indexOf(mesActual);
+                const interesActual = INTERESES[idxActual];
 
-                salida += `
+                let salida = `<h3>💡 Resultados de Intereses (${mesActual})</h3><hr>`;
+                let totalInteres = 0;
+
+                for (let i = 0; i <= idxLimite; i++) {
+                    const mes = MESES[i];
+                    const cuota = CUOTAS_POR_ESCUELA[escuela]?.[mes]?.[beca];
+                    if (!cuota) continue;
+
+                    const montoInteres = cuota * interesActual;
+                    totalInteres += montoInteres;
+
+                    salida += `
                     <div><b>${mes}:</b> Interés ${(interesActual * 100).toFixed(2)}% → $${montoInteres.toFixed(2)}</div>
                     <div class="linea"></div>
                 `;
-            }
+                }
 
-            salida += `<h4>Total intereses aplicados: $${totalInteres.toFixed(2)}</h4>`;
-            resultado.innerHTML = salida;
-            resultado.style.display = 'block';
-        }
+                salida += `<h4>Total intereses aplicados: $${totalInteres.toFixed(2)}</h4>`;
+                resultado.innerHTML = salida;
+                resultado.style.display = 'block';
+            }
     </script>
 </body>
 
