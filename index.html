@@ -5,115 +5,134 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Intereses Escolares</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
     <div class="container">
-        <header>
+        <header class="hero">
+            <div class="hero__meta">
+                <span class="chip chip--accent">Gestión administrativa</span>
+                <span class="chip">Actualizado 2025</span>
+            </div>
             <h1>📚 Calculadora de Intereses Escolares</h1>
+            <p class="hero__description">Simulá vencimientos, becas y montos finales con una interfaz moderna y fácil de usar.
+            </p>
         </header>
 
         <!-- CONTENEDOR PRINCIPAL DE TABS -->
-        <div class="tabs-container">
-
-            <!-- SECCIÓN 1: Botones principales -->
-            <div class="tabs" id="tabsAcciones">
-                <button id="btnAplicarMensual" class="btn-aplicador verde">
-                    🧮 Aplicar Interés generales al sistema
-                </button>
+        <section class="tabs-container">
+            <div class="panel">
+                <div class="panel__head">
+                    <h2 class="section-title">Acciones rápidas</h2>
+                    <p class="section-subtitle">Elegí cómo querés trabajar con las cuotas y los intereses.</p>
+                </div>
+                <div class="tabs" id="tabsAcciones">
+                    <button id="btnAplicarMensual" class="btn-aplicador verde">
+                        🧮 Aplicar intereses generales al sistema
+                    </button>
+                    <button id="btnAplicarPorCuota" class="btn-aplicador azul">
+                        🏫 Ver cuotas por escuela
+                    </button>
+                </div>
             </div>
 
-            <!-- SECCIÓN 2: Pestañas de escuelas (solo visibles si se elige “por cuota”) -->
-            <div id="seccionEscuelas" class="tabs oculto">
-                <div class="tab active" data-escuela="Inicial">Inicial / Primaria</div>
-                <div class="tab" data-escuela="SecundariaMB">Secundaria MB</div>
-                <div class="tab" data-escuela="Tecnica">Técnica</div>
-                <div class="tab" data-escuela="Superior">Superior</div>
+            <div class="panel panel--schools">
+                <div class="panel__head">
+                    <h2 class="section-title">Escuelas</h2>
+                    <p class="section-subtitle">Seleccioná una institución para personalizar la simulación.</p>
+                </div>
+                <div id="seccionEscuelas" class="tabs tabs--pills oculto">
+                    <div class="tab active" data-escuela="Inicial">Inicial / Primaria</div>
+                    <div class="tab" data-escuela="SecundariaMB">Secundaria MB</div>
+                    <div class="tab" data-escuela="Tecnica">Técnica</div>
+                    <div class="tab" data-escuela="Superior">Superior</div>
+                </div>
             </div>
+        </section>
 
-        </div>
-
-        <div class="app-container">
+        <main class="app-container">
             <!-- Formulario -->
-            <div class="form-section">
-                <h2 id="tituloEscuela">Escuela: Inicial / Primaria</h2><br>
+            <section class="form-section card">
+                <div class="section-heading">
+                    <h2 id="tituloEscuela" class="section-title">Escuela: Inicial / Primaria</h2>
+                    <p class="section-subtitle">Completá los datos para proyectar intereses y vencimientos.</p>
+                </div>
 
-                <form id="formCalculo">
-                    <div class="form-group flex-row">
-                        <div style="flex:1; margin-right:10px;">
-                            <label for="mesCuota">Mes de la Cuota:</label>
-                            <select id="mesCuota" name="mesCuota" required>
-                                <option value="">Seleccione el mes</option>
-                                <option value="MARZO">Marzo</option>
-                                <option value="ABRIL">Abril</option>
-                                <option value="MAYO">Mayo</option>
-                                <option value="JUNIO">Junio</option>
-                                <option value="JULIO">Julio</option>
-                                <option value="AGOSTO">Agosto</option>
-                                <option value="SEPTIEMBRE">Septiembre</option>
-                                <option value="OCTUBRE">Octubre</option>
-                                <option value="NOVIEMBRE">Noviembre</option>
-                            </select>
-                        </div>
-
-                        <div id="valorOriginalContainer" style="flex:1; display:none;">
-                            <label for="valorOriginalInput">
-                                <p>Valor Original</p>
-                            </label>
-                            <input type="number" id="valorOriginalInput" step="0.01"
-                                placeholder="Ingrese valor original">
-                        </div>
+                <form id="formCalculo" class="form">
+                    <div class="field-group">
+                        <label for="mesCuota">Mes de la cuota</label>
+                        <select id="mesCuota" name="mesCuota" required>
+                            <option value="">Seleccioná el mes</option>
+                            <option value="MARZO">Marzo</option>
+                            <option value="ABRIL">Abril</option>
+                            <option value="MAYO">Mayo</option>
+                            <option value="JUNIO">Junio</option>
+                            <option value="JULIO">Julio</option>
+                            <option value="AGOSTO">Agosto</option>
+                            <option value="SEPTIEMBRE">Septiembre</option>
+                            <option value="OCTUBRE">Octubre</option>
+                            <option value="NOVIEMBRE">Noviembre</option>
+                        </select>
                     </div>
 
                     <!-- Valor Original (editable y oculto hasta seleccionar mes) -->
-                    <div id="valorOriginalContainer" class="form-group" style="display:none;">
-                        <label for="valorOriginalInput"><b>Valor Original del Mes Seleccionado:</b></label>
-                        <input type="number" id="valorOriginalInput" step="0.01"
-                            style="padding:6px; border-radius:6px; border:1px solid #ccc;"
-                            placeholder="Ingrese valor original">
+                    <div id="valorOriginalWrapper" class="field-group is-hidden">
+                        <label for="valorOriginalInput">Valor original del mes seleccionado</label>
+                        <input type="number" id="valorOriginalInput" step="0.01" placeholder="Ingresá un valor manual">
                     </div>
 
-                    <div class="form-group">
-                        <label for="tipoBeca">Cuota / Beca:</label>
+                    <div class="field-group">
+                        <label for="tipoBeca">Cuota / Beca</label>
                         <select id="tipoBeca" name="tipoBeca" required>
-                            <option value="">Seleccione tipo de beca</option>
-                            <option value="COMPLETO">Cuota Completa</option>
+                            <option value="">Seleccioná el tipo de beca</option>
+                            <option value="COMPLETO">Cuota completa</option>
                             <option value="BECA 50%">Beca 50%</option>
                             <option value="BECA 25%">Beca 25%</option>
                             <option value="BECA 75%">Beca 75%</option>
                             <option value="BECA 100%">Beca 100%</option>
                         </select>
-                    </div><br>
+                    </div>
 
-                    <div class="form-group">
-                        <label for="fechaVencimiento">Vencimiento Original:</label>
-                        <input class="fechaVencimiento" type="text" id="fechaVencimiento" name="fechaVencimiento"
-                            readonly placeholder=""><br><br>
+                    <div class="info-cards">
+                        <div class="info-card">
+                            <span class="info-card__label">Vencimiento original</span>
+                            <input class="info-card__value info-field" type="text" id="fechaVencimiento" name="fechaVencimiento"
+                                readonly placeholder="Seleccioná un mes">
+                        </div>
+                        <div class="info-card">
+                            <span class="info-card__label">Desde esta fecha lleva interés</span>
+                            <input class="info-card__value info-field" type="text" id="fechaInicioInteres"
+                                name="fechaInicioInteres" readonly placeholder="Seleccioná un mes">
+                        </div>
+                    </div>
 
-                        <label for="fechaInicioInteres">Desde esta fecha lleva interés:</label>
-                        <input class="fechaInicioInteres" type="text" id="fechaInicioInteres" name="fechaInicioInteres"
-                            readonly placeholder="">
-                    </div><br>
-
-                    <div class="form-group">
-                        <label for="fechaPago">Fecha Real de Pago:</label>
+                    <div class="field-group">
+                        <label for="fechaPago">Fecha real de pago</label>
                         <input type="date" id="fechaPago" name="fechaPago" required>
-                    </div><br>
+                    </div>
 
-                    <button type="submit" class="btn-calcular">Calcular Interés</button>
+                    <div class="form-footer">
+                        <button type="submit" class="btn-calcular">Calcular interés</button>
+                    </div>
                 </form>
-            </div>
+            </section>
 
             <!-- Resultado -->
-            <div id="resultado" class="result-section" style="display: none;"></div>
-        </div>
+            <aside id="resultado" class="result-section card is-hidden"></aside>
+        </main>
 
         <!-- Información de cuotas base -->
-        <div class="info-section">
-            <h3>Información de Cuotas Base (<span id="labelEscuelaTabla">Inicial / Primaria</span>)</h3>
+        <section class="info-section card">
+            <div class="section-heading">
+                <h3 class="section-title">Información de Cuotas Base (<span id="labelEscuelaTabla">Inicial / Primaria</span>)</h3>
+                <p class="section-subtitle">Conocé los valores de referencia actualizados por institución.</p>
+            </div>
             <div id="tablaCuotas"></div>
-        </div>
+        </section>
     </div>
 
     <script src="js/script.js"></script>
