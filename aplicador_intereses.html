@@ -136,6 +136,17 @@
             margin: 12px 0;
         }
 
+        .chequeo-table th,
+        .chequeo-table td {
+            text-align: center;
+        }
+
+        .nota {
+            font-size: 0.9rem;
+            color: #444;
+            margin-top: 0.6rem;
+        }
+
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -173,7 +184,7 @@
                 <option>BECA 100%</option>
             </select>
 
-            <label>Mes actual:</label>
+            <label>Mes actual (hasta dónde chequear intereses):</label>
             <select id="mesActual"></select>
 
             <button onclick="calcularIntereses()">Calcular Intereses</button>
@@ -185,14 +196,84 @@
     <div class="info-section">
         <h3>Información de Cuotas Base (<span id="labelEscuelaTabla">INICIAL</span>)</h3>
         <div id="tabla-cuotas"></div>
+        <div class="nota">
+            <strong>Nota:</strong> En DICIEMBRE / ENERO / FEBRERO no hay cuotas nuevas, pero sí se aplican intereses
+            sobre cuotas anteriores.
+            El cálculo de "chequeo" que aparece abajo usa interés simple mensual (no compuesto): para cada cuota base
+            suma
+            cuota * tasa_mes para cada mes de intereses que cae <em>después</em> de la cuota y hasta el mes
+            seleccionado.
+        </div>
+        <div id="tabla-chequeo" style="margin-top:12px;"></div>
     </div>
 
     <script>
-        const MESES = ['MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE', 'ENERO', 'FEBRERO'];
-        const INTERESES = [0.04, 0.04, 0.0275, 0.0275, 0.0275, 0.0275, 0.0275, 0.0275, 0.0275, 0.0275, 0.0275, 0.0275];
+        const ORDERED_MONTHS = ['MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE', 'ENERO', 'FEBRERO'];
 
-        const CUOTAS_POR_ESCUELA = { 'INICIAL': { 'MARZO': { 'COMPLETO': 69030, 'BECA 75%': 27563.32, 'BECA 50%': 41385.55, 'BECA 25%': 55207.79, 'BECA 100%': 13741.11 }, 'ABRIL': { 'COMPLETO': 70940, 'BECA 75%': 28290, 'BECA 50%': 42506.66, 'BECA 25%': 56723.34, 'BECA 100%': 14073.34 }, 'MAYO': { 'COMPLETO': 70940, 'BECA 75%': 28290, 'BECA 50%': 42506.66, 'BECA 25%': 56723.34, 'BECA 100%': 14073.34 }, 'JUNIO': { 'COMPLETO': 75410, 'BECA 75%': 29993.35, 'BECA 50%': 45132.24, 'BECA 25%': 60271.11, 'BECA 100%': 14854.46 }, 'JULIO': { 'COMPLETO': 78580, 'BECA 75%': 31263.33, 'BECA 50%': 47035.56, 'BECA 25%': 62807.79, 'BECA 100%': 15491.12 }, 'AGOSTO': { 'COMPLETO': 78580, 'BECA 75%': 31263.33, 'BECA 50%': 47035.56, 'BECA 25%': 62807.79, 'BECA 100%': 15491.12 }, 'SEPTIEMBRE': { 'COMPLETO': 80710, 'BECA 75%': 32076.67, 'BECA 50%': 48287.78, 'BECA 25%': 64498.89, 'BECA 100%': 15865.56 }, 'OCTUBRE': { 'COMPLETO': 82890, 'BECA 75%': 32906.67, 'BECA 50%': 49567.77, 'BECA 25%': 66228.89, 'BECA 100%': 16245.56 }, 'NOVIEMBRE': { 'COMPLETO': 82890, 'BECA 75%': 32906.67, 'BECA 50%': 49567.77, 'BECA 25%': 66228.89, 'BECA 100%': 16245.56 } }, 'SECUNDARIAMB': { 'MARZO': { 'COMPLETO': 75890, 'BECA 50%': 45412.23, 'BECA 25%': 60651.12, 'BECA 100%': 14934.46, 'BECA 75%': 30173.34 }, 'ABRIL': { 'COMPLETO': 77970, 'BECA 50%': 46636.66, 'BECA 25%': 62303.34, 'BECA 100%': 15303.34, 'BECA 75%': 30970 }, 'MAYO': { 'COMPLETO': 77970, 'BECA 50%': 46636.66, 'BECA 25%': 62303.34, 'BECA 100%': 15303.34, 'BECA 75%': 30970 }, 'JUNIO': { 'COMPLETO': 82900, 'BECA 50%': 49533.34, 'BECA 25%': 66216.67, 'BECA 100%': 16166.68, 'BECA 75%': 32850.01 }, 'JULIO': { 'COMPLETO': 86390, 'BECA 50%': 51623.34, 'BECA 25%': 69006.67, 'BECA 100%': 16856.68, 'BECA 75%': 34240.01 }, 'AGOSTO': { 'COMPLETO': 86390, 'BECA 50%': 51623.34, 'BECA 25%': 69006.67, 'BECA 100%': 16856.68, 'BECA 75%': 34240.01 }, 'SEPTIEMBRE': { 'COMPLETO': 88730, 'BECA 50%': 52996.66, 'BECA 25%': 70863.34, 'BECA 100%': 17263.34, 'BECA 75%': 35130 }, 'OCTUBRE': { 'COMPLETO': 91160, 'BECA 50%': 54426.66, 'BECA 25%': 72793.34, 'BECA 100%': 17693.34, 'BECA 75%': 36060 }, 'NOVIEMBRE': { 'COMPLETO': 91160, 'BECA 50%': 54426.66, 'BECA 25%': 72793.34, 'BECA 100%': 17693.34, 'BECA 75%': 36060 } }, 'TECNICA': { 'MARZO': { 'COMPLETO': 78610, 'BECA 50%': 47010.01, 'BECA 25%': 62810, 'BECA 100%': 15410.01, 'BECA 75%': 31210.01 }, 'ABRIL': { 'COMPLETO': 80820, 'BECA 50%': 48309.99, 'BECA 25%': 64565, 'BECA 100%': 15800, 'BECA 75%': 32055 }, 'MAYO': { 'COMPLETO': 80820, 'BECA 50%': 48309.99, 'BECA 25%': 64565, 'BECA 100%': 15800, 'BECA 75%': 32055 }, 'JUNIO': { 'COMPLETO': 85930, 'BECA 50%': 51310.01, 'BECA 25%': 68620.02, 'BECA 100%': 16690.02, 'BECA 75%': 34000.01 }, 'JULIO': { 'COMPLETO': 89550, 'BECA 50%': 53480.01, 'BECA 25%': 71515, 'BECA 100%': 17410.01, 'BECA 75%': 35445.01 }, 'AGOSTO': { 'COMPLETO': 89550, 'BECA 50%': 53480.01, 'BECA 25%': 71515, 'BECA 100%': 17410.01, 'BECA 75%': 35445.01 }, 'SEPTIEMBRE': { 'COMPLETO': 91970, 'BECA 50%': 54900.02, 'BECA 25%': 73435, 'BECA 100%': 17830.02, 'BECA 75%': 36365.02 }, 'OCTUBRE': { 'COMPLETO': 94470, 'BECA 50%': 56370.01, 'BECA 25%': 75420.01, 'BECA 100%': 18270.01, 'BECA 75%': 37320.01 }, 'NOVIEMBRE': { 'COMPLETO': 94470, 'BECA 50%': 56370.01, 'BECA 25%': 75420.01, 'BECA 100%': 18270.01, 'BECA 75%': 37320.01 } }, 'SUPERIOR': { 'MARZO': { 'COMPLETO': 69570, 'BECA 50%': 41702.23, 'BECA 25%': 55636.11, 'BECA 100%': 13834.45, 'BECA 75%': 27768.34 }, 'ABRIL': { 'COMPLETO': 71490, 'BECA 50%': 42828.89, 'BECA 25%': 57159.45, 'BECA 100%': 14167.78, 'BECA 75%': 28498.33 }, 'MAYO': { 'COMPLETO': 71490, 'BECA 50%': 42828.89, 'BECA 25%': 57159.45, 'BECA 100%': 14167.78, 'BECA 75%': 28498.33 }, 'JUNIO': { 'COMPLETO': 76000, 'BECA 50%': 45480, 'BECA 25%': 60740, 'BECA 100%': 14960, 'BECA 75%': 30220 }, 'JULIO': { 'COMPLETO': 79190, 'BECA 50%': 47394.44, 'BECA 25%': 63292.22, 'BECA 100%': 15598.89, 'BECA 75%': 31496.67 }, 'AGOSTO': { 'COMPLETO': 79190, 'BECA 50%': 47394.44, 'BECA 25%': 63292.22, 'BECA 100%': 15598.89, 'BECA 75%': 31496.67 }, 'SEPTIEMBRE': { 'COMPLETO': 81340, 'BECA 50%': 48657.79, 'BECA 25%': 64998.89, 'BECA 100%': 15975.57, 'BECA 75%': 32316.68 }, 'OCTUBRE': { 'COMPLETO': 83560, 'BECA 50%': 49960.78, 'BECA 25%': 66760.39, 'BECA 100%': 16361.57, 'BECA 75%': 33161.18 }, 'NOVIEMBRE': { 'COMPLETO': 83560, 'BECA 50%': 49960.78, 'BECA 25%': 66760.39, 'BECA 100%': 16361.57, 'BECA 75%': 33161.18 } } };
+        // Tasas mensuales (ejemplo): ajustar si necesitás otras tasas.
+        const INTERESES_MAP = {
+            'MAYO': 0.04,
+            'JUNIO': 0.04,
+            'JULIO': 0.04,
+            'AGOSTO': 0.04,
+            'SEPTIEMBRE': 0.0275,
+            'OCTUBRE': 0.0275,
+            'NOVIEMBRE': 0.0275,
+            'DICIEMBRE': 0.0275,
+            'ENERO': 0.0275,
+            'FEBRERO': 0.0275
+        };
 
+        // CUOTAS por escuela y por mes (MARZO..NOVIEMBRE). Valores provistos por vos.
+        const CUOTAS_POR_ESCUELA = {
+            'INICIAL': {
+                'MARZO': { 'COMPLETO': 69030, 'BECA 75%': 27563.32, 'BECA 50%': 41385.55, 'BECA 25%': 55207.79, 'BECA 100%': 13741.11 },
+                'ABRIL': { 'COMPLETO': 70940, 'BECA 75%': 28290, 'BECA 50%': 42506.66, 'BECA 25%': 56723.34, 'BECA 100%': 14073.34 },
+                'MAYO': { 'COMPLETO': 70940, 'BECA 75%': 28290, 'BECA 50%': 42506.66, 'BECA 25%': 56723.34, 'BECA 100%': 14073.34 },
+                'JUNIO': { 'COMPLETO': 75410, 'BECA 75%': 29993.35, 'BECA 50%': 45132.24, 'BECA 25%': 60271.11, 'BECA 100%': 14854.46 },
+                'JULIO': { 'COMPLETO': 78580, 'BECA 75%': 31263.33, 'BECA 50%': 47035.56, 'BECA 25%': 62807.79, 'BECA 100%': 15491.12 },
+                'AGOSTO': { 'COMPLETO': 78580, 'BECA 75%': 31263.33, 'BECA 50%': 47035.56, 'BECA 25%': 62807.79, 'BECA 100%': 15491.12 },
+                'SEPTIEMBRE': { 'COMPLETO': 80710, 'BECA 75%': 32076.67, 'BECA 50%': 48287.78, 'BECA 25%': 64498.89, 'BECA 100%': 15865.56 },
+                'OCTUBRE': { 'COMPLETO': 82890, 'BECA 75%': 32906.67, 'BECA 50%': 49567.77, 'BECA 25%': 66228.89, 'BECA 100%': 16245.56 },
+                'NOVIEMBRE': { 'COMPLETO': 82890, 'BECA 75%': 32906.67, 'BECA 50%': 49567.77, 'BECA 25%': 66228.89, 'BECA 100%': 16245.56 }
+            },
+            'SECUNDARIAMB': {
+                'MARZO': { 'COMPLETO': 75890, 'BECA 75%': 30173.34, 'BECA 50%': 45412.23, 'BECA 25%': 60651.12, 'BECA 100%': 14934.46 },
+                'ABRIL': { 'COMPLETO': 77970, 'BECA 75%': 30970, 'BECA 50%': 46636.66, 'BECA 25%': 62303.34, 'BECA 100%': 15303.34 },
+                'MAYO': { 'COMPLETO': 77970, 'BECA 75%': 30970, 'BECA 50%': 46636.66, 'BECA 25%': 62303.34, 'BECA 100%': 15303.34 },
+                'JUNIO': { 'COMPLETO': 82900, 'BECA 75%': 32850.01, 'BECA 50%': 49533.34, 'BECA 25%': 66216.67, 'BECA 100%': 16166.68 },
+                'JULIO': { 'COMPLETO': 86390, 'BECA 75%': 34240.01, 'BECA 50%': 51623.34, 'BECA 25%': 69006.67, 'BECA 100%': 16856.68 },
+                'AGOSTO': { 'COMPLETO': 86390, 'BECA 75%': 34240.01, 'BECA 50%': 51623.34, 'BECA 25%': 69006.67, 'BECA 100%': 16856.68 },
+                'SEPTIEMBRE': { 'COMPLETO': 88730, 'BECA 75%': 35130, 'BECA 50%': 52996.66, 'BECA 25%': 70863.34, 'BECA 100%': 17263.34 },
+                'OCTUBRE': { 'COMPLETO': 91160, 'BECA 75%': 36060, 'BECA 50%': 54426.66, 'BECA 25%': 72793.34, 'BECA 100%': 17693.34 },
+                'NOVIEMBRE': { 'COMPLETO': 91160, 'BECA 75%': 36060, 'BECA 50%': 54426.66, 'BECA 25%': 72793.34, 'BECA 100%': 17693.34 }
+            },
+            'TECNICA': {
+                'MARZO': { 'COMPLETO': 78610, 'BECA 75%': 31210.01, 'BECA 50%': 47010.01, 'BECA 25%': 62810, 'BECA 100%': 15410.01 },
+                'ABRIL': { 'COMPLETO': 80820, 'BECA 75%': 32055, 'BECA 50%': 48309.99, 'BECA 25%': 64565, 'BECA 100%': 15800 },
+                'MAYO': { 'COMPLETO': 80820, 'BECA 75%': 32055, 'BECA 50%': 48309.99, 'BECA 25%': 64565, 'BECA 100%': 15800 },
+                'JUNIO': { 'COMPLETO': 85930, 'BECA 75%': 34000.01, 'BECA 50%': 51310.01, 'BECA 25%': 68620.02, 'BECA 100%': 16690.02 },
+                'JULIO': { 'COMPLETO': 89550, 'BECA 75%': 35445.01, 'BECA 50%': 53480.01, 'BECA 25%': 71515, 'BECA 100%': 17410.01 },
+                'AGOSTO': { 'COMPLETO': 89550, 'BECA 75%': 35445.01, 'BECA 50%': 53480.01, 'BECA 25%': 71515, 'BECA 100%': 17410.01 },
+                'SEPTIEMBRE': { 'COMPLETO': 91970, 'BECA 75%': 36365.02, 'BECA 50%': 54900.02, 'BECA 25%': 73435, 'BECA 100%': 17830.02 },
+                'OCTUBRE': { 'COMPLETO': 94470, 'BECA 75%': 37320.01, 'BECA 50%': 56370.01, 'BECA 25%': 75420.01, 'BECA 100%': 18270.01 },
+                'NOVIEMBRE': { 'COMPLETO': 94470, 'BECA 75%': 37320.01, 'BECA 50%': 56370.01, 'BECA 25%': 75420.01, 'BECA 100%': 18270.01 }
+            },
+            'SUPERIOR': {
+                'MARZO': { 'COMPLETO': 69570, 'BECA 75%': 27768.34, 'BECA 50%': 41702.23, 'BECA 25%': 55636.11, 'BECA 100%': 13834.45 },
+                'ABRIL': { 'COMPLETO': 71490, 'BECA 75%': 28498.33, 'BECA 50%': 42828.89, 'BECA 25%': 57159.45, 'BECA 100%': 14167.78 },
+                'MAYO': { 'COMPLETO': 71490, 'BECA 75%': 28498.33, 'BECA 50%': 42828.89, 'BECA 25%': 57159.45, 'BECA 100%': 14167.78 },
+                'JUNIO': { 'COMPLETO': 76000, 'BECA 75%': 30220, 'BECA 50%': 45480, 'BECA 25%': 60740, 'BECA 100%': 14960 },
+                'JULIO': { 'COMPLETO': 79190, 'BECA 75%': 31496.67, 'BECA 50%': 47394.44, 'BECA 25%': 63292.22, 'BECA 100%': 15598.89 },
+                'AGOSTO': { 'COMPLETO': 79190, 'BECA 75%': 31496.67, 'BECA 50%': 47394.44, 'BECA 25%': 63292.22, 'BECA 100%': 15598.89 },
+                'SEPTIEMBRE': { 'COMPLETO': 81340, 'BECA 75%': 32316.68, 'BECA 50%': 48657.79, 'BECA 25%': 64998.89, 'BECA 100%': 15975.57 },
+                'OCTUBRE': { 'COMPLETO': 83560, 'BECA 75%': 33161.18, 'BECA 50%': 49960.78, 'BECA 25%': 66760.39, 'BECA 100%': 16361.57 },
+                'NOVIEMBRE': { 'COMPLETO': 83560, 'BECA 75%': 33161.18, 'BECA 50%': 49960.78, 'BECA 25%': 66760.39, 'BECA 100%': 16361.57 }
+            }
+        };
+
+        // REGLA_INTERESES original (la mantenemos por compatibilidad, pero el chequeo nuevo
+        // usa INTERESES_MAP + orden para decidir qué meses aportaron intereses).
         const REGLA_INTERESES = {
             'MAYO': 'MARZO',
             'JUNIO': 'ABRIL',
@@ -206,10 +287,11 @@
             'FEBRERO': 'NOVIEMBRE'
         };
 
+        // Poblamos select de meses (mostramos MARZO..FEBRERO)
         window.onload = () => {
             const selMes = document.getElementById('mesActual');
-            MESES.forEach(m => {
-                let opt = document.createElement('option');
+            ORDERED_MONTHS.forEach(m => {
+                const opt = document.createElement('option');
                 opt.text = m;
                 opt.value = m;
                 selMes.appendChild(opt);
@@ -243,18 +325,19 @@
                 </thead>
                 <tbody>`;
 
-            for (const mes of MESES) {
+            for (const mes of ORDERED_MONTHS) {
+                // Solo mostramos MARZO..NOVIEMBRE en la tabla de cuotas base (si existen).
                 if (!datos[mes]) continue;
 
                 const c = datos[mes];
                 tabla += `
                     <tr>
                         <td>${mes}</td>
-                        <td>$${c["COMPLETO"]}</td>
-                        <td>$${c["BECA 75%"]}</td>
-                        <td>$${c["BECA 50%"]}</td>
-                        <td>$${c["BECA 25%"]}</td>
-                        <td>$${c["BECA 100%"]}</td>
+                        <td>$${formatNumber(c["COMPLETO"])}</td>
+                        <td>$${formatNumber(c["BECA 75%"])}</td>
+                        <td>$${formatNumber(c["BECA 50%"])}</td>
+                        <td>$${formatNumber(c["BECA 25%"])}</td>
+                        <td>$${formatNumber(c["BECA 100%"])}</td>
                     </tr>`;
             }
 
@@ -262,43 +345,122 @@
             tablaDiv.innerHTML = tabla;
         }
 
+        // Función principal: calcula intereses como venías haciendo + chequeo por mes base (MARZO..NOVIEMBRE)
         function calcularIntereses() {
             const escuela = document.getElementById('escuela').value;
             const beca = document.getElementById('beca').value;
             const mesActual = document.getElementById('mesActual').value;
             const resultado = document.getElementById('resultado');
 
-            const mesLimite = REGLA_INTERESES[mesActual];
-            if (!mesLimite) {
-                resultado.innerHTML = '<p>Seleccioná un mes válido (desde MAYO en adelante).</p>';
+            // Validación básica
+            if (!ORDERED_MONTHS.includes(mesActual)) {
+                resultado.innerHTML = '<p>Seleccioná un mes válido.</p>';
                 resultado.style.display = 'block';
                 return;
             }
 
-            const idxLimite = MESES.indexOf(mesLimite);
-            const idxActual = MESES.indexOf(mesActual);
-            const interesActual = INTERESES[idxActual];
+            // --- Parte 1: (tu listado de intereses por regla original) ---
+            // En tu código original estabas usando REGLA_INTERESES para determinar hasta qué mes
+            // sumar (idxLimite). Lo mantenemos pero lo mostramos como detalle.
+            const mesLimite = REGLA_INTERESES[mesActual];
+            let detalleAnterior = '';
+            if (mesLimite) {
+                const idxLimite = ORDERED_MONTHS.indexOf(mesLimite);
+                const idxActual = ORDERED_MONTHS.indexOf(mesActual);
+                // para mantener compatibilidad con la lógica previa:
+                const interesActual = (INTERESES_MAP[mesActual] !== undefined) ? INTERESES_MAP[mesActual] : 0;
 
-            let salida = `<h3>💡 Resultados de Intereses (${mesActual})</h3><hr>`;
-            let totalInteres = 0;
+                let salida = `<h3>💡 Resultados de Intereses (vista rápida - regla existente) — ${mesActual}</h3><hr>`;
+                let totalInteres = 0;
 
-            for (let i = 0; i <= idxLimite; i++) {
-                const mes = MESES[i];
-                const cuota = CUOTAS_POR_ESCUELA[escuela]?.[mes]?.[beca];
-                if (!cuota) continue;
+                for (let i = 0; i <= idxLimite; i++) {
+                    const mes = ORDERED_MONTHS[i];
+                    const cuota = CUOTAS_POR_ESCUELA[escuela]?.[mes]?.[beca];
+                    if (!cuota) continue;
 
-                const montoInteres = cuota * interesActual;
-                totalInteres += montoInteres;
+                    const montoInteres = cuota * interesActual;
+                    totalInteres += montoInteres;
 
-                salida += `
-                    <div><b>${mes}:</b> Interés ${(interesActual * 100).toFixed(2)}% → $${montoInteres.toFixed(2)}</div>
-                    <div class="linea"></div>
-                `;
+                    salida += `
+                        <div><b>${mes}:</b> Interés ${(interesActual * 100).toFixed(2)}% → $${formatNumber(montoInteres)}</div>
+                        <div class="linea"></div>
+                    `;
+                }
+
+                salida += `<h4>Total intereses aplicados (regla existente): $${formatNumber(totalInteres)}</h4>`;
+                detalleAnterior = salida;
+            } else {
+                detalleAnterior = `<p>La regla de intereses no define un mes base para ${mesActual} (no hay cálculo de 'regla existente').</p>`;
             }
 
-            salida += `<h4>Total intereses aplicados: $${totalInteres.toFixed(2)}</h4>`;
-            resultado.innerHTML = salida;
+            // --- Parte 2: Chequeo solicitado por vos — calculo acumulado por cuota base (MARZO..NOVIEMBRE) ---
+            // Regla para chequeo: para cada mes base (MARZO..NOVIEMBRE) sumar, hasta mesActual,
+            // todos los intereses mensuales cuya fecha sea posterior al mes base.
+            // Usamos INTERESES_MAP para las tasas; la suma es simple (no compuesta).
+            const chequearHastaIdx = ORDERED_MONTHS.indexOf(mesActual);
+            const baseMonths = ORDERED_MONTHS.slice(0, ORDERED_MONTHS.indexOf('NOVIEMBRE') + 1); // MARZO..NOVIEMBRE
+
+            let tablaChequeo = `
+                <h3>🔎 Chequeo acumulado por cuota base (interés simple hasta ${mesActual})</h3>
+                <table class="tabla-cuotas chequeo-table">
+                    <thead>
+                        <tr>
+                            <th>Mes Base</th>
+                            <th>Cuota base (${beca})</th>
+                            <th>Total intereses aplicados</th>
+                            <th>Valor final (base + intereses)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            let anyRow = false;
+            for (const baseMes of baseMonths) {
+                const cuota = CUOTAS_POR_ESCUELA[escuela]?.[baseMes]?.[beca];
+                if (!cuota) continue;
+
+                // sumar intereses mensuales m tales que:
+                // index(m) > index(baseMes) && index(m) <= chequearHastaIdx && m pertenece a INTERESES_MAP
+                let totalInteresAplicado = 0;
+                for (const m of Object.keys(INTERESES_MAP)) {
+                    const idxM = ORDERED_MONTHS.indexOf(m);
+                    if (idxM === -1) continue;
+                    const idxBase = ORDERED_MONTHS.indexOf(baseMes);
+                    if (idxM > idxBase && idxM <= chequearHastaIdx) {
+                        const tasa = INTERESES_MAP[m];
+                        totalInteresAplicado += cuota * tasa;
+                    }
+                }
+
+                const valorFinal = cuota + totalInteresAplicado;
+                tablaChequeo += `
+                    <tr>
+                        <td>${baseMes}</td>
+                        <td>$${formatNumber(cuota)}</td>
+                        <td>$${formatNumber(totalInteresAplicado)}</td>
+                        <td>$${formatNumber(valorFinal)}</td>
+                    </tr>
+                `;
+                anyRow = true;
+            }
+
+            if (!anyRow) {
+                tablaChequeo += `<tr><td colspan="4">No hay cuotas base (MARZO..NOVIEMBRE) para la escuela/beca seleccionada.</td></tr>`;
+            }
+
+            tablaChequeo += `</tbody></table>`;
+
+            // --- Renderizamos ambas partes ---
+            resultado.innerHTML = detalleAnterior + '<div style="margin-top:18px;"></div>' + tablaChequeo;
             resultado.style.display = 'block';
+
+            // También colocamos la tabla de chequeo en la sección inferior (tabla-chequeo) para visibilidad.
+            document.getElementById('tabla-chequeo').innerHTML = tablaChequeo;
+        }
+
+        // util: formatear números con coma decimal y separador de miles
+        function formatNumber(n) {
+            return Number(n).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
     </script>
 </body>
