@@ -325,9 +325,9 @@
                     <tr>
                         <td>${mes}</td>
                         <td>$${formatNumber(c["COMPLETO"])}</td>
-                        <td>$${formatNumber(c["BECA 75%"])}</td>
-                        <td>$${formatNumber(c["BECA 50%"])}</td>
                         <td>$${formatNumber(c["BECA 25%"])}</td>
+                        <td>$${formatNumber(c["BECA 50%"])}</td>
+                        <td>$${formatNumber(c["BECA 75%"])}</td>
                         <td>$${formatNumber(c["BECA 100%"])}</td>
                     </tr>`;
                 }
@@ -361,7 +361,7 @@
                     // para mantener compatibilidad con la lógica previa:
                     const interesActual = (INTERESES_MAP[mesActual] !== undefined) ? INTERESES_MAP[mesActual] : 0;
 
-                    let salida = `<h3>💡 Resultados de Intereses (vista rápida - regla existente) — ${mesActual}</h3><hr>`;
+                    let salida = `<h3>💡 Resultados de Intereses — ${mesActual}</h3><hr>`;
                     let totalInteres = 0;
 
                     for (let i = 0; i <= idxLimite; i++) {
@@ -378,7 +378,7 @@
                     `;
                     }
 
-                    salida += `<h4>Total intereses aplicados (regla existente): $${formatNumber(totalInteres)}</h4>`;
+                    salida += `<h4>Total intereses aplicados: $${formatNumber(totalInteres)}</h4>`;
                     detalleAnterior = salida;
                 } else {
                     detalleAnterior = `<p>La regla de intereses no define un mes base para ${mesActual} (no hay cálculo de 'regla existente').</p>`;
@@ -392,7 +392,7 @@
                 const baseMonths = ORDERED_MONTHS.slice(0, ORDERED_MONTHS.indexOf('NOVIEMBRE') + 1); // MARZO..NOVIEMBRE
 
                 let tablaChequeo = `
-                <h3>🔎 Chequeo acumulado por cuota base (interés simple hasta ${mesActual})</h3>
+                <h3>🔎 Chequeo acumulado por cuota base</h3>
                 <table style="display:grid;" class="tabla-cuotas chequeo-table">
                     <thead>
                         <tr>
@@ -417,7 +417,7 @@
                         const idxM = ORDERED_MONTHS.indexOf(m);
                         if (idxM === -1) continue;
                         const idxBase = ORDERED_MONTHS.indexOf(baseMes);
-                        if (idxM > idxBase && idxM <= chequearHastaIdx) {
+                        if (idxM <= chequearHastaIdx && idxBase < idxM - 1) {
                             const tasa = INTERESES_MAP[m];
                             totalInteresAplicado += cuota * tasa;
                         }
