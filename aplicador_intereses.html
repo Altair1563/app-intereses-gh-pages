@@ -89,7 +89,6 @@
         }
 
         .tabla-cuotas {
-            display: grid;
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
@@ -394,7 +393,7 @@
 
                 let tablaChequeo = `
                 <h3>🔎 Chequeo acumulado por cuota base (interés simple hasta ${mesActual})</h3>
-                <table class="tabla-cuotas chequeo-table">
+                <table style="display:grid;" class="tabla-cuotas chequeo-table">
                     <thead>
                         <tr>
                             <th>Mes Base</th>
