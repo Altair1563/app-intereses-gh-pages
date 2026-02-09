@@ -55,7 +55,7 @@ const INTERESES_PERIODS = [
     { mes: 'AGOSTO', rate: 0.0275 },
     { mes: 'SEPTIEMBRE', rate: 0.0275 },
     { mes: 'OCTUBRE', rate: 0.0275 },
-    { mes: 'NOVIEMBRE', rate: 0.0275 }
+    { mes: 'NOVIEMBRE', rate: 0.0275 },
     { mes: 'DICIEMBRE', rate: 0.0275 },
     { mes: 'ENERO', rate: 0.0275 },
     { mes: 'FEBRERO', rate: 0.0275 }
