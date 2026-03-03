@@ -198,8 +198,7 @@
     </div>
 
     <script>
-        // Agregamos 'Marzo 26' al final del array de meses para que aparezca en el selector
-        const ORDERED_MONTHS = ['MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE', 'ENERO', 'FEBRERO', 'Marzo 26'];
+        const ORDERED_MONTHS = ['MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE', 'ENERO', 'FEBRERO', 'Marzo26'];
 
         // Tasas mensuales (ejemplo)
         const INTERESES_MAP = {
@@ -213,7 +212,7 @@
             'DICIEMBRE': 0.0275,
             'ENERO': 0.0275,
             'FEBRERO': 0.0275,
-            'Marzo 26': 0.0275
+            'Marzo26': 0.0275
         };
 
         // CUOTAS por escuela y por mes (MARZO..NOVIEMBRE)
@@ -276,8 +275,7 @@
             'DICIEMBRE': 'OCTUBRE',
             'ENERO': 'NOVIEMBRE',
             'FEBRERO': 'NOVIEMBRE',
-            // Agregamos 'Marzo 26' con límite NOVIEMBRE para que aplique a todas las cuotas base
-            'Marzo 26': 'NOVIEMBRE'
+            'Marzo26': 'NOVIEMBRE'
         };
 
         window.onload = () => {
@@ -348,7 +346,7 @@
                 return;
             }
 
-            // Parte 1: Regla anterior (ahora 'Marzo 26' también tiene entrada)
+            // Parte 1: Regla anterior (solo si existe, si no, mensaje informativo)
             let detalleAnterior = '';
             if (REGLA_INTERESES.hasOwnProperty(mesActual)) {
                 const mesLimite = REGLA_INTERESES[mesActual];
@@ -375,16 +373,15 @@
                 salida += `<h4>Total intereses aplicados: $${formatNumber(totalInteres)}</h4>`;
                 detalleAnterior = salida;
             } else {
-                // Por si acaso, aunque ya tenemos entrada para Marzo 26
                 detalleAnterior = `<p><em>No hay una regla de intereses predefinida para "${mesActual}". Se muestra a continuación el cálculo acumulado por cuota base, que sí contempla este mes.</em></p>`;
             }
 
-            // Parte 2: Nuevo cálculo acumulado por cuota base (MARZO..NOVIEMBRE)
+            // Parte 2: Cálculo acumulado por cuota base (MARZO..NOVIEMBRE) usando la misma regla
             const chequearHastaIdx = ORDERED_MONTHS.indexOf(mesActual);
             const baseMonths = ORDERED_MONTHS.slice(0, ORDERED_MONTHS.indexOf('NOVIEMBRE') + 1); // MARZO..NOVIEMBRE
 
             let tablaChequeo = `
-                <h3>🔎 Chequeo acumulado por cuota base</h3>
+                <h3>🔎 Chequeo acumulado por cuota base (según regla)</h3>
                 <table class="tabla-cuotas chequeo-table">
                     <thead>
                         <tr>
@@ -405,11 +402,18 @@
                 let totalInteresAplicado = 0;
                 const idxBase = ORDERED_MONTHS.indexOf(baseMes);
 
+                // Iterar sobre los meses tasa que sean <= mesActual
                 for (const [mesTasa, tasa] of Object.entries(INTERESES_MAP)) {
-                    const idxM = ORDERED_MONTHS.indexOf(mesTasa);
-                    if (idxM === -1) continue;
-                    // Aplicar interés si el mes de la tasa es posterior al mes base y no supera el mes actual
-                    if (idxM > idxBase && idxM <= chequearHastaIdx) {
+                    const idxTasa = ORDERED_MONTHS.indexOf(mesTasa);
+                    if (idxTasa === -1 || idxTasa > chequearHastaIdx) continue; // solo meses hasta el actual
+
+                    const mesLimite = REGLA_INTERESES[mesTasa];
+                    if (!mesLimite) continue;
+                    const idxLimite = ORDERED_MONTHS.indexOf(mesLimite);
+                    if (idxLimite === -1) continue;
+
+                    // Si el mes base está dentro del rango [MARZO, mesLimite] (incluye MARZO y mesLimite)
+                    if (idxBase <= idxLimite) {
                         totalInteresAplicado += cuota * tasa;
                     }
                 }
