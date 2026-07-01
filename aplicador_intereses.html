@@ -202,63 +202,63 @@
 
         // Tasas mensuales (ejemplo)
         const INTERESES_MAP = {
-            'MAYO': 0.04,
-            'JUNIO': 0.04,
+            'MAYO': 0.0275,
+            'JUNIO': 0.0275,
             'JULIO': 0.0275,
-            'AGOSTO': 0.0275,
-            'SEPTIEMBRE': 0.0275,
-            'OCTUBRE': 0.0275,
-            'NOVIEMBRE': 0.0275,
-            'DICIEMBRE': 0.0275,
-            'ENERO': 0.0275,
-            'FEBRERO': 0.0275
+            'AGOSTO': 0,
+            'SEPTIEMBRE': 0,
+            'OCTUBRE': 0,
+            'NOVIEMBRE': 0,
+            'DICIEMBRE': 0,
+            'ENERO': 0,
+            'FEBRERO': 0.
         };
 
         // CUOTAS por escuela y por mes (MARZO..NOVIEMBRE)
         const CUOTAS_POR_ESCUELA = {
             'INICIAL': {
-                'MARZO': { 'COMPLETO': 69030, 'BECA 75%': 27563.32, 'BECA 50%': 41385.55, 'BECA 25%': 55207.79, 'BECA 100%': 13741.11 },
-                'ABRIL': { 'COMPLETO': 70940, 'BECA 75%': 28290, 'BECA 50%': 42506.66, 'BECA 25%': 56723.34, 'BECA 100%': 14073.34 },
-                'MAYO': { 'COMPLETO': 70940, 'BECA 75%': 28290, 'BECA 50%': 42506.66, 'BECA 25%': 56723.34, 'BECA 100%': 14073.34 },
-                'JUNIO': { 'COMPLETO': 75410, 'BECA 75%': 29993.35, 'BECA 50%': 45132.24, 'BECA 25%': 60271.11, 'BECA 100%': 14854.46 },
-                'JULIO': { 'COMPLETO': 78580, 'BECA 75%': 31263.33, 'BECA 50%': 47035.56, 'BECA 25%': 62807.79, 'BECA 100%': 15491.12 },
-                'AGOSTO': { 'COMPLETO': 78580, 'BECA 75%': 31263.33, 'BECA 50%': 47035.56, 'BECA 25%': 62807.79, 'BECA 100%': 15491.12 },
-                'SEPTIEMBRE': { 'COMPLETO': 80710, 'BECA 75%': 32076.67, 'BECA 50%': 48287.78, 'BECA 25%': 64498.89, 'BECA 100%': 15865.56 },
-                'OCTUBRE': { 'COMPLETO': 82890, 'BECA 75%': 32906.67, 'BECA 50%': 49567.77, 'BECA 25%': 66228.89, 'BECA 100%': 16245.56 },
-                'NOVIEMBRE': { 'COMPLETO': 82890, 'BECA 75%': 32906.67, 'BECA 50%': 49567.77, 'BECA 25%': 66228.89, 'BECA 100%': 16245.56 }
+                'MARZO': { 'COMPLETO': 85690.00, 'BECA 75%': 34223.34, 'BECA 50%': 51378.90, 'BECA 25%': 68534.45, 'BECA 100%': 17067.79 },
+                'ABRIL': { 'COMPLETO': 91180.00, 'BECA 75%': 36380.01, 'BECA 50%': 54646.67, 'BECA 25%': 72913.34, 'BECA 100%': 18113.34 },
+                'MAYO': { 'COMPLETO': 94280.00, 'BECA 75%': 37563.34, 'BECA 50%': 56468.90, 'BECA 25%': 75374.45, 'BECA 100%': 18657.79 },
+                'JUNIO': { 'COMPLETO': 97680.00, 'BECA 75%': 38980.00, 'BECA 50%': 58546.68, 'BECA 25%': 78113.34, 'BECA 100%': 19413.34 },
+                'JULIO': { 'COMPLETO': 97680.00, 'BECA 75%': 38980.00, 'BECA 50%': 58546.68, 'BECA 25%': 78113.34, 'BECA 100%': 19413.34 },
+                'AGOSTO': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'SEPTIEMBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'OCTUBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'NOVIEMBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 }
             },
             'SECUNDARIAMB': {
-                'MARZO': { 'COMPLETO': 75890, 'BECA 75%': 30173.34, 'BECA 50%': 45412.23, 'BECA 25%': 60651.12, 'BECA 100%': 14934.46 },
-                'ABRIL': { 'COMPLETO': 77970, 'BECA 75%': 30970, 'BECA 50%': 46636.66, 'BECA 25%': 62303.34, 'BECA 100%': 15303.34 },
-                'MAYO': { 'COMPLETO': 77970, 'BECA 75%': 30970, 'BECA 50%': 46636.66, 'BECA 25%': 62303.34, 'BECA 100%': 15303.34 },
-                'JUNIO': { 'COMPLETO': 82900, 'BECA 75%': 32850.01, 'BECA 50%': 49533.34, 'BECA 25%': 66216.67, 'BECA 100%': 16166.68 },
-                'JULIO': { 'COMPLETO': 86390, 'BECA 75%': 34240.01, 'BECA 50%': 51623.34, 'BECA 25%': 69006.67, 'BECA 100%': 16856.68 },
-                'AGOSTO': { 'COMPLETO': 86390, 'BECA 75%': 34240.01, 'BECA 50%': 51623.34, 'BECA 25%': 69006.67, 'BECA 100%': 16856.68 },
-                'SEPTIEMBRE': { 'COMPLETO': 88730, 'BECA 75%': 35130, 'BECA 50%': 52996.66, 'BECA 25%': 70863.34, 'BECA 100%': 17263.34 },
-                'OCTUBRE': { 'COMPLETO': 91160, 'BECA 75%': 36060, 'BECA 50%': 54426.66, 'BECA 25%': 72793.34, 'BECA 100%': 17693.34 },
-                'NOVIEMBRE': { 'COMPLETO': 91160, 'BECA 75%': 36060, 'BECA 50%': 54426.66, 'BECA 25%': 72793.34, 'BECA 100%': 17693.34 }
+                'MARZO': { 'COMPLETO': 94230.00, 'BECA 75%': 37480.01, 'BECA 50%': 56396.67, 'BECA 25%': 75313.34, 'BECA 100%': 18563.34 },
+                'ABRIL': { 'COMPLETO': 100280.00, 'BECA 75%': 39846.68, 'BECA 50%': 59991.12, 'BECA 25%': 80135.56, 'BECA 100%': 19702.24 },
+                'MAYO': { 'COMPLETO': 103670.00, 'BECA 75%': 41136.68, 'BECA 50%': 61981.12, 'BECA 25%': 82825.56, 'BECA 100%': 20292.24 },
+                'JUNIO': { 'COMPLETO': 107410.00, 'BECA 75%': 42693.33, 'BECA 50%': 64265.56, 'BECA 25%': 85837.79, 'BECA 100%': 21121.12 },
+                'JULIO': { 'COMPLETO': 107410.00, 'BECA 75%': 42693.33, 'BECA 50%': 64265.56, 'BECA 25%': 85837.79, 'BECA 100%': 21121.12 },
+                'AGOSTO': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'SEPTIEMBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'OCTUBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'NOVIEMBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 }
             },
             'TECNICA': {
-                'MARZO': { 'COMPLETO': 78610, 'BECA 75%': 31210.01, 'BECA 50%': 47010.01, 'BECA 25%': 62810, 'BECA 100%': 15410.01 },
-                'ABRIL': { 'COMPLETO': 80820, 'BECA 75%': 32055, 'BECA 50%': 48309.99, 'BECA 25%': 64565, 'BECA 100%': 15800 },
-                'MAYO': { 'COMPLETO': 80820, 'BECA 75%': 32055, 'BECA 50%': 48309.99, 'BECA 25%': 64565, 'BECA 100%': 15800 },
-                'JUNIO': { 'COMPLETO': 85930, 'BECA 75%': 34000.01, 'BECA 50%': 51310.01, 'BECA 25%': 68620.02, 'BECA 100%': 16690.02 },
-                'JULIO': { 'COMPLETO': 89550, 'BECA 75%': 35445.01, 'BECA 50%': 53480.01, 'BECA 25%': 71515, 'BECA 100%': 17410.01 },
-                'AGOSTO': { 'COMPLETO': 89550, 'BECA 75%': 35445.01, 'BECA 50%': 53480.01, 'BECA 25%': 71515, 'BECA 100%': 17410.01 },
-                'SEPTIEMBRE': { 'COMPLETO': 91970, 'BECA 75%': 36365.02, 'BECA 50%': 54900.02, 'BECA 25%': 73435, 'BECA 100%': 17830.02 },
-                'OCTUBRE': { 'COMPLETO': 94470, 'BECA 75%': 37320.01, 'BECA 50%': 56370.01, 'BECA 25%': 75420.01, 'BECA 100%': 18270.01 },
-                'NOVIEMBRE': { 'COMPLETO': 94470, 'BECA 75%': 37320.01, 'BECA 50%': 56370.01, 'BECA 25%': 75420.01, 'BECA 100%': 18270.01 }
+                'MARZO': { 'COMPLETO': 108210.00, 'BECA 75%': 42810.00, 'BECA 50%': 64610.00, 'BECA 25%': 86410.00, 'BECA 100%': 21010.00 },
+                'ABRIL': { 'COMPLETO': 115180.00, 'BECA 75%': 45530.02, 'BECA 50%': 68746.68, 'BECA 25%': 91963.34, 'BECA 100%': 22313.36 },
+                'MAYO': { 'COMPLETO': 119110.00, 'BECA 75%': 47026.68, 'BECA 50%': 71054.45, 'BECA 25%': 95082.23, 'BECA 100%': 22998.90 },
+                'JUNIO': { 'COMPLETO': 123380.00, 'BECA 75%': 48780.00, 'BECA 50%': 73646.67, 'BECA 25%': 98513.33, 'BECA 100%': 23913.33 },
+                'JULIO': { 'COMPLETO': 123380.00, 'BECA 75%': 48780.00, 'BECA 50%': 73646.67, 'BECA 25%': 98513.33, 'BECA 100%': 23913.33 },
+                'AGOSTO': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'SEPTIEMBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'OCTUBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'NOVIEMBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 }
             },
             'SUPERIOR': {
-                'MARZO': { 'COMPLETO': 69570, 'BECA 75%': 27768.34, 'BECA 50%': 41702.23, 'BECA 25%': 55636.11, 'BECA 100%': 13834.45 },
-                'ABRIL': { 'COMPLETO': 71490, 'BECA 75%': 28498.33, 'BECA 50%': 42828.89, 'BECA 25%': 57159.45, 'BECA 100%': 14167.78 },
-                'MAYO': { 'COMPLETO': 71490, 'BECA 75%': 28498.33, 'BECA 50%': 42828.89, 'BECA 25%': 57159.45, 'BECA 100%': 14167.78 },
-                'JUNIO': { 'COMPLETO': 76000, 'BECA 75%': 30220, 'BECA 50%': 45480, 'BECA 25%': 60740, 'BECA 100%': 14960 },
-                'JULIO': { 'COMPLETO': 79190, 'BECA 75%': 31496.67, 'BECA 50%': 47394.44, 'BECA 25%': 63292.22, 'BECA 100%': 15598.89 },
-                'AGOSTO': { 'COMPLETO': 79190, 'BECA 75%': 31496.67, 'BECA 50%': 47394.44, 'BECA 25%': 63292.22, 'BECA 100%': 15598.89 },
-                'SEPTIEMBRE': { 'COMPLETO': 81340, 'BECA 75%': 32316.68, 'BECA 50%': 48657.79, 'BECA 25%': 64998.89, 'BECA 100%': 15975.57 },
-                'OCTUBRE': { 'COMPLETO': 83560, 'BECA 75%': 33161.18, 'BECA 50%': 49960.78, 'BECA 25%': 66760.39, 'BECA 100%': 16361.57 },
-                'NOVIEMBRE': { 'COMPLETO': 83560, 'BECA 75%': 33161.18, 'BECA 50%': 49960.78, 'BECA 25%': 66760.39, 'BECA 100%': 16361.57 }
+                'MARZO': { 'COMPLETO': 86380.00, 'BECA 75%': 34486.67, 'BECA 50%': 51784.44, 'BECA 25%': 69082.22, 'BECA 100%': 17188.89 },
+                'ABRIL': { 'COMPLETO': 91930.00, 'BECA 75%': 36665.00, 'BECA 50%': 55086.67, 'BECA 25%': 73508.33, 'BECA 100%': 18243.34 },
+                'MAYO': { 'COMPLETO': 95040.00, 'BECA 75%': 37850.01, 'BECA 50%': 56913.34, 'BECA 25%': 75976.67, 'BECA 100%': 18786.68 },
+                'JUNIO': { 'COMPLETO': 98470.00, 'BECA 75%': 39285.00, 'BECA 50%': 59013.34, 'BECA 25%': 78741.68, 'BECA 100%': 19556.68 },
+                'JULIO': { 'COMPLETO': 98470.00, 'BECA 75%': 39285.00, 'BECA 50%': 59013.34, 'BECA 25%': 78741.68, 'BECA 100%': 19556.68 },
+                'AGOSTO': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'SEPTIEMBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'OCTUBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 },
+                'NOVIEMBRE': { 'COMPLETO': 0, 'BECA 75%': 0, 'BECA 50%': 0, 'BECA 25%': 0, 'BECA 100%': 0 }
             }
         };
 
