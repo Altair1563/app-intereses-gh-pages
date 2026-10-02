@@ -184,7 +184,7 @@
             </select>
 
             <label>Mes actual (hasta dónde chequear intereses):</label>
-            <select id="mesActual"></select>
+            <select id="mesActual" onchange="mostrarTablaCuotas()"></select>
 
             <button onclick="calcularIntereses()">Calcular Intereses</button>
         </div>
@@ -195,6 +195,12 @@
     <div class="info-section">
         <h3>Información de Cuotas Base (<span id="labelEscuelaTabla">INICIAL</span>)</h3>
         <div id="tabla-cuotas"></div>
+    </div>
+
+    <div class="info-section">
+        <h3>Información de Cuotas + Intereses (<span id="labelEscuelaTablaIntereses">INICIAL</span>)</h3>
+        <p class="nota">Cuota base más los intereses acumulados hasta el mes seleccionado (<span id="labelMesIntereses">MARZO</span>).</p>
+        <div id="tabla-cuotas-intereses"></div>
     </div>
 
     <script>
@@ -287,20 +293,49 @@
             mostrarTablaCuotas();
         };
 
+        function interesesAcumulados(cuota, baseMes, mesActual) {
+            const chequearHastaIdx = ORDERED_MONTHS.indexOf(mesActual);
+            const idxBase = ORDERED_MONTHS.indexOf(baseMes);
+            let totalInteresAplicado = 0;
+
+            for (const [mesTasa, tasa] of Object.entries(INTERESES_MAP)) {
+                const idxTasa = ORDERED_MONTHS.indexOf(mesTasa);
+                if (idxTasa === -1 || idxTasa > chequearHastaIdx) continue;
+
+                const mesLimite = REGLA_INTERESES[mesTasa];
+                if (!mesLimite) continue;
+                const idxLimite = ORDERED_MONTHS.indexOf(mesLimite);
+                if (idxLimite === -1) continue;
+
+                if (idxBase <= idxLimite) {
+                    totalInteresAplicado += cuota * tasa;
+                }
+            }
+
+            return totalInteresAplicado;
+        }
+
         function mostrarTablaCuotas() {
             const escuela = document.getElementById('escuela').value;
+            const mesActual = document.getElementById('mesActual').value;
             const label = document.getElementById('labelEscuelaTabla');
+            const labelIntereses = document.getElementById('labelEscuelaTablaIntereses');
+            const labelMes = document.getElementById('labelMesIntereses');
             const tablaDiv = document.getElementById('tabla-cuotas');
+            const tablaInteresesDiv = document.getElementById('tabla-cuotas-intereses');
             const datos = CUOTAS_POR_ESCUELA[escuela];
 
             label.textContent = escuela;
+            labelIntereses.textContent = escuela;
+            labelMes.textContent = mesActual || 'MARZO';
 
             if (!datos) {
                 tablaDiv.innerHTML = "<p>No hay datos de cuotas para esta escuela.</p>";
+                tablaInteresesDiv.innerHTML = "<p>No hay datos de cuotas para esta escuela.</p>";
                 return;
             }
 
-            let tabla = `<table class="tabla-cuotas">
+            const encabezado = `
                 <thead>
                     <tr>
                         <th>Mes</th>
@@ -310,8 +345,10 @@
                         <th>25%</th>
                         <th>100%</th>
                     </tr>
-                </thead>
-                <tbody>`;
+                </thead>`;
+
+            let tabla = `<table class="tabla-cuotas">${encabezado}<tbody>`;
+            let tablaIntereses = `<table class="tabla-cuotas">${encabezado}<tbody>`;
 
             for (const mes of ORDERED_MONTHS) {
                 if (!datos[mes]) continue;
@@ -326,10 +363,28 @@
                         <td>$${formatNumber(c["BECA 25%"])}</td>
                         <td>$${formatNumber(c["BECA 100%"])}</td>
                     </tr>`;
+
+                const completo = c["COMPLETO"] + interesesAcumulados(c["COMPLETO"], mes, mesActual);
+                const beca75 = c["BECA 75%"] + interesesAcumulados(c["BECA 75%"], mes, mesActual);
+                const beca50 = c["BECA 50%"] + interesesAcumulados(c["BECA 50%"], mes, mesActual);
+                const beca25 = c["BECA 25%"] + interesesAcumulados(c["BECA 25%"], mes, mesActual);
+                const beca100 = c["BECA 100%"] + interesesAcumulados(c["BECA 100%"], mes, mesActual);
+
+                tablaIntereses += `
+                    <tr>
+                        <td>${mes}</td>
+                        <td>$${formatNumber(completo)}</td>
+                        <td>$${formatNumber(beca75)}</td>
+                        <td>$${formatNumber(beca50)}</td>
+                        <td>$${formatNumber(beca25)}</td>
+                        <td>$${formatNumber(beca100)}</td>
+                    </tr>`;
             }
 
             tabla += "</tbody></table>";
+            tablaIntereses += "</tbody></table>";
             tablaDiv.innerHTML = tabla;
+            tablaInteresesDiv.innerHTML = tablaIntereses;
         }
 
         function calcularIntereses() {
